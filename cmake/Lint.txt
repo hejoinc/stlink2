@@ -1,0 +1,87 @@
+find_package(Perl QUIET)
+
+option(OCA_LINT "Enable linting with checkpatch (perl required)" OFF)
+
+if (NOT PERL_EXECUTABLE)
+	message(STATUS "linting disabled")
+	return()
+else()
+	set(OCA_LINT ON)
+	message(STATUS "linting enabled")
+endif()
+
+function(add_lint SOURCES_LIST)
+  list(REMOVE_DUPLICATES SOURCES_LIST)
+  list(SORT SOURCES_LIST)
+
+  foreach(sourcefile ${SOURCES_LIST})
+  	set (lintname "lint_${sourcefile}")
+  	string(REPLACE "${PROJECT_SOURCE_DIR}/" "" lintname ${lintname})
+  	string(REPLACE "-" "_" lintname ${lintname})
+	string(REPLACE "." "_" lintname ${lintname})
+	string(REPLACE "/" "_" lintname ${lintname})
+	string(TOLOWER ${lintname} lintname)
+
+	get_filename_component(sourcefilename ${sourcefile} NAME)
+
+	if (${sourcefilename} MATCHES "^.*.c$")
+		add_custom_target(${lintname}
+			COMMAND "${CMAKE_COMMAND}" -E chdir
+				"${CMAKE_CURRENT_SOURCE_DIR}"
+				"${PERL_EXECUTABLE}"
+				"${CMAKE_SOURCE_DIR}/3thparty/github.com/torvalds/linux/scripts/checkpatch.pl"
+				"--no-tree"
+				"--terse"
+				"--strict"
+				"--showfile"
+				"--summary-file"
+				"--max-line-length=120"
+				"--ignore=COMPARISON_TO_NULL"
+				"--ignore=GLOBAL_INITIALISERS"
+				"--ignore=INITIALISED_STATIC"
+				"--ignore=PREFER_KERNEL_TYPES"
+				"--ignore=COMPLEX_MACRO"
+				"--ignore=CAMELCASE"
+				"--ignore=NEW_TYPEDEFS"
+				"--ignore=MULTISTATEMENT_MACRO_USE_DO_WHILE"
+				"--ignore=TRAILING_SEMICOLON"
+				"--ignore=AVOID_EXTERNS"
+				"-f"
+				${sourcefile}
+			COMMENT "Linting ${sourcefilename}"
+			VERBATIM)
+	  elseif (${sourcefilename} MATCHES "^.*.h$")
+		add_custom_target(${lintname}
+			COMMAND "${CMAKE_COMMAND}" -E chdir
+				"${CMAKE_CURRENT_SOURCE_DIR}"
+				"${PERL_EXECUTABLE}"
+				"${CMAKE_SOURCE_DIR}/scripts/checkpatch.pl"
+				"--no-tree"
+				"--terse"
+				"--strict"
+				"--showfile"
+				"--summary-file"
+				"--max-line-length=120"
+				"--ignore=COMPARISON_TO_NULL"
+				"--ignore=GLOBAL_INITIALISERS"
+				"--ignore=INITIALISED_STATIC"
+				"--ignore=PREFER_KERNEL_TYPES"
+				"--ignore=COMPLEX_MACRO"
+				"--ignore=CAMELCASE"
+				"--ignore=NEW_TYPEDEFS"
+				"--ignore=MULTISTATEMENT_MACRO_USE_DO_WHILE"
+				"--ignore=TRAILING_SEMICOLON"
+				"--ignore=AVOID_EXTERNS"
+				"-f"
+				${sourcefile}
+			COMMENT "Linting ${sourcefilename}"
+			VERBATIM)
+	  endif()
+	list (APPEND LINT_SOURCES_LIST ${lintname})
+  endforeach(sourcefile)
+
+  add_custom_target(lint
+    DEPENDS ${LINT_SOURCES_LIST}
+    COMMENT "Linting project ${PROJECT_NAME}"
+    VERBATIM)
+endfunction()
