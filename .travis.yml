@@ -1,0 +1,25 @@
+language: c
+sudo: true
+
+addons:
+  apt:
+    packages:
+      - clang
+
+compiler:
+  - clang
+  - gcc
+  - scan-build
+
+matrix:
+  include:
+    - os: linux
+      compiler: gcc
+    - os: linux
+      compiler: clang
+    - os: linux
+      compiler: scan-build
+    - os: osx
+      compiler: clang
+
+script: ./.travis.sh
