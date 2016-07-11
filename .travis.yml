@@ -14,10 +14,6 @@ compiler:
 matrix:
   include:
     - os: linux
-      compiler: gcc
-    - os: linux
-      compiler: clang
-    - os: linux
       compiler: scan-build
     - os: osx
       compiler: clang

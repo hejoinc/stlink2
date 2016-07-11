@@ -316,6 +316,7 @@ void stlink2_semihosting_op_sys_writec(struct stlink2 *dev)
 
 void stlink2_semihosting_op_sys_write0(struct stlink2 *dev)
 {
+	ssize_t rc;
 	uint32_t data;
 	uint32_t addr;
 
@@ -328,7 +329,10 @@ void stlink2_semihosting_op_sys_write0(struct stlink2 *dev)
 				data = 0;
 				break;
 			}
-			write(1, &((char *)&data)[n], 1);
+
+			rc = write(1, &((char *)&data)[n], 1);
+			if (rc < 0)
+				printf("error in write\n");
 		}
 		addr += 4;
 	} while (data != 0);
@@ -665,41 +669,6 @@ static void stlink2_create(struct stlink2 *st)
 		printf("unable to claim\n");
 		return;
 	}
-
-	printf("====== name: %s\n", st->name);
-	stlink2_get_version(st);
-	stlink2_get_mode(st);
-	stlink2_set_mode_swd(st);
-	stlink2_get_coreid(st);
-	stlink2_get_chipid(st);
-
-	stlink2_mcu_halt(st);
-	stlink2_mcu_reset(st);
-	stlink2_mcu_run(st);
-
-	while (1) {
-		while (stlink2_get_status(st) == STLINK2_STATUS_CORE_RUNNING)
-			stlink2_msleep(10);
-
-		if (stlink2_semihosting(st)) {
-			uint32_t pc;
-
-			stlink2_read_reg(st, 15, &pc);
-			pc += 2;
-			stlink2_write_reg(st, 15, pc);
-			stlink2_read_reg(st, 15, &pc);
-
-			stlink2_mcu_run(st);
-		}
-	}
-
-#ifdef TEST
-	stlink2_read_all_regs(st);
-	stlink2_read_reg(st, 0, &val);
-	stlink2_mcu_run(st);
-	stlink2_stm32x_info(st, descr, sizeof(descr));
-	printf("      descr: %s\n\n", descr);
-#endif
 }
 
 static void stlink2_usb_config_endpoints(struct stlink2 *dev)
@@ -783,4 +752,31 @@ void stlink2_probe(void)
 	libusb_free_device_list(devs, 1);
 
 	libusb_exit(NULL);
+}
+
+struct stlink2 *stlink2_open(const char *serial)
+{
+	struct stlink2 *dev;
+
+	(void)serial;
+
+	dev = calloc(1, sizeof(*dev));
+
+	return dev;
+}
+
+void stlink2_close(stlink2_t *dev)
+{
+	struct stlink2 *_dev = *dev;
+
+	if (dev)
+		_dev = *dev;
+	else
+		return;
+
+	free(_dev->serial);
+	if (_dev->usb.dev)
+		libusb_close(_dev->usb.dev);
+	free(_dev);
+	dev = NULL;
 }

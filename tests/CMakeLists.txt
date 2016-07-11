@@ -5,6 +5,7 @@ endif()
 message(STATUS "tests enabled")
 
 set(TESTS
+	open_close
 	probe
 )
 

@@ -205,6 +205,9 @@ enum stlink2_semihosting_exception {
 
 typedef struct stlink2 *stlink2_t;
 
+stlink2_t stlink2_open(const char *serial);
+void stlink2_close(stlink2_t *dev);
+
 void stlink2_probe(void);
 void stlink2_free(stlink2_t dev);
 void stlink2_read_reg(stlink2_t dev, uint8_t idx, uint32_t *val);
