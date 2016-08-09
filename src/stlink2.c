@@ -23,16 +23,12 @@ enum stlink2_mode stlink2_get_mode(struct stlink2 *dev)
 
 	switch (rep[0]) {
 	case STLINK2_MODE_DFU:
-		printf("       mode: dfu\n");
 		break;
 	case STLINK2_MODE_MASS:
-		printf("       mode: mass-storage\n");
 		break;
 	case STLINK2_MODE_DEBUG:
-		printf("       mode: debug\n");
 		break;
 	default:
-		printf("       mode: unknown\n");
 		return STLINK2_MODE_UNKNOWN;
 	}
 
@@ -99,17 +95,6 @@ static void stlink2_write_debug32(struct stlink2 *dev, uint32_t addr, uint32_t v
 	stlink2_usb_send_recv(dev, _cmd, sizeof(_cmd), _rep, sizeof(_rep));
 }
 
-uint32_t stlink2_get_coreid(struct stlink2 *st)
-{
-	uint32_t coreid;
-	uint8_t rep[4];
-
-	stlink2_debug_command(st, STLINK2_CMD_DEBUG_READ_COREID, 0, rep, 4);
-	coreid = stlink2_bconv_u32_le_to_h(rep);
-	printf("     coreid: %08x\n", coreid);
-	return coreid;
-}
-
 void stlink2_get_version(struct stlink2 *dev)
 {
 	uint8_t rep[6];
@@ -158,19 +143,6 @@ void stlink2_set_mode_swd(struct stlink2 *dev)
 {
 	stlink2_set_exitmode_dfu(dev);
 	stlink2_debug_command(dev, STLINK2_CMD_DEBUG_ENTER_MODE, STLINK2_CMD_DEBUG_ENTER_SWD, NULL, 0);
-}
-
-uint32_t stlink2_get_chipid(struct stlink2 *dev)
-{
-	uint32_t chipid;
-
-	/** @todo get rid of magic values */
-	stlink2_read_debug32(dev, 0xE0042000, &chipid);
-	if (!chipid)
-		stlink2_read_debug32(dev, 0x40015800, &chipid);
-
-	printf("     chipid: %08x\n", chipid);
-	return chipid;
 }
 
 void stlink2_mcu_halt(struct stlink2 *dev)
@@ -362,4 +334,17 @@ const char *stlink2_get_serial(stlink2_t dev)
 const char *stlink2_get_name(stlink2_t dev)
 {
 	return dev->name;
+}
+
+uint32_t stlink2_get_coreid(stlink2_t dev)
+{
+	uint8_t rep[4];
+
+	stlink2_debug_command(dev, STLINK2_CMD_DEBUG_READ_COREID, 0, rep, sizeof(rep));
+	return stlink2_bconv_u32_le_to_h(rep);
+}
+
+uint32_t stlink2_get_chipid(stlink2_t dev)
+{
+	return stlink2_cmd_get_chipid(dev);
 }

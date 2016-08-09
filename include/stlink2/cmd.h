@@ -6,6 +6,8 @@
 #ifndef STLINK2_CMD_H_
 #define STLINK2_CMD_H_
 
+#include <stlink2.h>
+
 enum stlink2_cmd {
 	STLINK2_CMD_GET_VERSION      = 0xf1,
 	STLINK2_CMD_DEBUG            = 0xf2,
@@ -41,5 +43,7 @@ enum stlink2_cmd_debug {
 	STLINK2_CMD_JTAG_READDEBUG_32BIT = 0x36,
 	STLINK2_CMD_SWD_SET_FREQ         = 0x43
 };
+
+uint32_t stlink2_cmd_get_chipid(struct stlink2 *dev);
 
 #endif /* STLINK2_CMD_H_ */
