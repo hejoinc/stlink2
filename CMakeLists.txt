@@ -35,6 +35,7 @@ endif()
 
 if (WIN32)
 	add_definitions("-DSTLINK2_HAVE_WINDOWS")
+	add_definitions("-Dsnprintf=_snprintf")
 	add_cflag_if_supported("/W4")
 else ()
 	check_function_exists(nanosleep STLINK2_HAVE_NANOSLEEP)

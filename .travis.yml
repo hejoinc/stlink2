@@ -13,8 +13,6 @@ compiler:
 
 matrix:
   include:
-    - os: linux
-      compiler: scan-build
     - os: osx
       compiler: clang
 

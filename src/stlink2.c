@@ -393,12 +393,12 @@ struct stlink2 *stlink2_open(const char *serial)
 
 void stlink2_close(stlink2_t *dev)
 {
-	struct stlink2 *_dev = *dev;
-
-	if (dev)
-		_dev = *dev;
-	else
+	if (!dev)
 		return;
+	if (!*dev)
+		return;
+
+	struct stlink2 *_dev = *dev;
 
 	free(_dev->serial);
 	if (_dev->usb.dev)

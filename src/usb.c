@@ -127,7 +127,7 @@ ssize_t stlink2_usb_send_recv(struct stlink2 *dev,
 		stlink2_log_printf(STLINK2_LOGLEVEL_TRACE, dev, "%02x ", txbuf[n]);
 	stlink2_log_printf(STLINK2_LOGLEVEL_TRACE, dev, "\n");
 
-	if (!rxbuf && !rxsize)
+	if (!rxbuf || !rxsize)
 		return 0;
 
 	ret = libusb_bulk_transfer(dev->usb.dev, dev->usb.tx_ep,
