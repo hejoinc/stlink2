@@ -4,24 +4,13 @@
  * license that can be found in the LICENSE file.
  */
 #include <stlink2.h>
+#include <stlink2/cortexm.h>
+#include <stlink2/utils/bconv.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 
 #define STLINK2_CMD_SIZE       16 /**< USB command size in bytes */
-
-static inline uint32_t stlink2_conv_u32_le_to_h(const uint8_t *buf)
-{
-	return (uint32_t)(buf[0] | buf[1] << 8 | buf[2] << 16 | buf[3] << 24);
-}
-
-static inline void stlink2_conv_u32_h_to_le(uint8_t *buf, uint32_t val)
-{
-	buf[3] = (uint8_t)(val >> 24);
-	buf[2] = (uint8_t)(val >> 16);
-	buf[1] = (uint8_t)(val >> 8);
-	buf[0] = (uint8_t)(val >> 0);
-}
 
 static enum stlink2_mode stlink2_get_mode(struct stlink2 *dev)
 {
@@ -81,7 +70,7 @@ static void stlink2_debug_command_u32(struct stlink2 *dev, uint8_t cmd, uint32_t
 	memset(_cmd, 0, sizeof(_cmd));
 	_cmd[0] = STLINK2_CMD_DEBUG;
 	_cmd[1] = cmd;
-	stlink2_conv_u32_h_to_le(&_cmd[2], param);
+	stlink2_bconv_u32_h_to_le(&_cmd[2], param);
 
 	stlink2_usb_send_recv(dev, _cmd, sizeof(_cmd), buf, bufsize);
 }
@@ -95,7 +84,7 @@ void stlink2_read_debug32(struct stlink2 *dev, uint32_t addr, uint32_t *val)
 
 	stlink2_debug_command_u32(dev, STLINK2_CMD_JTAG_READDEBUG_32BIT, addr, _rep, sizeof(_rep));
 
-	*val = stlink2_conv_u32_le_to_h(&_rep[4]);
+	*val = stlink2_bconv_u32_le_to_h(&_rep[4]);
 }
 
 static void stlink2_write_debug32(struct stlink2 *dev, uint32_t addr, uint32_t val)
@@ -105,8 +94,8 @@ static void stlink2_write_debug32(struct stlink2 *dev, uint32_t addr, uint32_t v
 
 	_cmd[0] = STLINK2_CMD_DEBUG;
 	_cmd[1] = STLINK2_CMD_JTAG_WRITEDEBUG_32BIT;
-	stlink2_conv_u32_h_to_le(&_cmd[2], addr);
-	stlink2_conv_u32_h_to_le(&_cmd[3], val);
+	stlink2_bconv_u32_h_to_le(&_cmd[2], addr);
+	stlink2_bconv_u32_h_to_le(&_cmd[3], val);
 
 	stlink2_usb_send_recv(dev, _cmd, sizeof(_cmd), _rep, sizeof(_rep));
 }
@@ -117,7 +106,7 @@ static uint32_t stlink2_get_coreid(struct stlink2 *st)
 	uint8_t rep[4];
 
 	stlink2_debug_command(st, STLINK2_CMD_DEBUG_READ_COREID, 0, rep, 4);
-	coreid = stlink2_conv_u32_le_to_h(rep);
+	coreid = stlink2_bconv_u32_le_to_h(rep);
 	printf("     coreid: %08x\n", coreid);
 	return coreid;
 }
@@ -226,17 +215,17 @@ void stlink2_read_all_regs(stlink2_t dev)
 
 	for (size_t n = 0; n < 21; n++) {
 		if (n < 16)
-			printf("r%zu = 0x%08x\n", n, stlink2_conv_u32_le_to_h(&rep[n * 4]));
+			printf("r%zu = 0x%08x\n", n, stlink2_bconv_u32_le_to_h(&rep[n * 4]));
 		else if (n == 16)
-			printf("xPSR = 0x%08x\n", stlink2_conv_u32_le_to_h(&rep[n * 4]));
+			printf("xPSR = 0x%08x\n", stlink2_bconv_u32_le_to_h(&rep[n * 4]));
 		else if (n == 17)
-			printf("MSP = 0x%08x\n", stlink2_conv_u32_le_to_h(&rep[n * 4]));
+			printf("MSP = 0x%08x\n", stlink2_bconv_u32_le_to_h(&rep[n * 4]));
 		else if (n == 18)
-			printf("PSP = 0x%08x\n", stlink2_conv_u32_le_to_h(&rep[n * 4]));
+			printf("PSP = 0x%08x\n", stlink2_bconv_u32_le_to_h(&rep[n * 4]));
 		else if (n == 19)
-			printf("RW = 0x%08x\n", stlink2_conv_u32_le_to_h(&rep[n * 4]));
+			printf("RW = 0x%08x\n", stlink2_bconv_u32_le_to_h(&rep[n * 4]));
 		else if (n == 20)
-			printf("RW1 = 0x%08x\n", stlink2_conv_u32_le_to_h(&rep[n * 4]));
+			printf("RW1 = 0x%08x\n", stlink2_bconv_u32_le_to_h(&rep[n * 4]));
 	}
 }
 
@@ -245,7 +234,7 @@ void stlink2_read_reg(stlink2_t dev, uint8_t idx, uint32_t *val)
 	uint8_t rep[8];
 
 	stlink2_debug_command(dev, STLINK2_CMD_DEBUG_READ_REG, idx, rep, sizeof(rep));
-	*val = stlink2_conv_u32_le_to_h(&rep[4]);
+	*val = stlink2_bconv_u32_le_to_h(&rep[4]);
 }
 
 void stlink2_write_reg(stlink2_t dev, uint8_t idx, uint32_t val)
@@ -257,7 +246,7 @@ void stlink2_write_reg(stlink2_t dev, uint8_t idx, uint32_t val)
 	_cmd[0] = STLINK2_CMD_DEBUG;
 	_cmd[1] = STLINK2_CMD_DEBUG_WRITE_REG;
 	_cmd[2] = idx;
-	stlink2_conv_u32_h_to_le(&_cmd[3], val);
+	stlink2_bconv_u32_h_to_le(&_cmd[3], val);
 
 	stlink2_usb_send_recv(dev, _cmd, STLINK2_CMD_SIZE, rep, sizeof(rep));
 }
@@ -270,10 +259,10 @@ void stlink2_set_swdclk(stlink2_t dev, enum stlink2_swdclk clk)
 
 void stlink2_halt_resume(stlink2_t dev)
 {
-	uint32_t dhcsr = CORTEXM_DHCSR_DBGKEY | CORTEXM_DHCSR_C_DEBUGEN;
+	uint32_t dhcsr = STLINK2_CORTEXM_DHCSR_DBGKEY | STLINK2_CORTEXM_DHCSR_C_DEBUGEN;
 
-	stlink2_write_debug32(dev, CORTEXM_DHCSR, dhcsr);
-	stlink2_read_debug32(dev, CORTEXM_DHCSR, &dhcsr);
+	stlink2_write_debug32(dev, STLINK2_CORTEXM_DHCSR, dhcsr);
+	stlink2_read_debug32(dev, STLINK2_CORTEXM_DHCSR, &dhcsr);
 }
 
 static struct stlink2 *stlink2_dev_alloc(void)

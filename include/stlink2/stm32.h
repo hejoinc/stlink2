@@ -6,6 +6,8 @@
 #ifndef STLINK2_STM32_H_
 #define STLINK2_STM32_H_
 
+#include <stlink2.h>
+
 enum stlink2_stm32_devid {
 	STLINK2_STM32_DEVID_STM32F2XX          = 0x411,
 	STLINK2_STM32_DEVID_STM32L1XX_CAT3_MED = 0x427,
@@ -26,5 +28,7 @@ enum stlink2_stm32_revid {
 	STLINK2_STM32_REVID_STM32F4XX_REV_1 = 0x1007,
 	STLINK2_STM32_REVID_STM32F4XX_REV_3 = 0x2001
 };
+
+void stlink2_stm32_info(struct stlink2 *dev, char *buf, int buf_size);
 
 #endif /* STLINK2_STM32_H_ */

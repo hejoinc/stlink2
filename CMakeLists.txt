@@ -81,6 +81,7 @@ set(SRC
 	src/usb.c
 	src/stm32.c
 	src/semihosting.c
+	src/utils/bconv.c
 	src/utils/msleep.c
 )
 include_directories(include)

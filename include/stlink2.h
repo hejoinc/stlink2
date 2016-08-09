@@ -10,15 +10,6 @@
 
 #define STLINK2_ARRAY_SIZE(array) (sizeof(array)/sizeof(array[0]))
 
-enum stlink2_loglevel {
-	STLINK2_LOGLEVEL_QUIET,
-	STLINK2_LOGLEVEL_ERROR,
-	STLINK2_LOGLEVEL_WARN,
-	STLINK2_LOGLEVEL_INFO,
-	STLINK2_LOGLEVEL_DEBUG,
-	STLINK2_LOGLEVEL_TRACE
-};
-
 enum stlink2_status {
 	STLINK2_STATUS_UNKNOWN      = -1,
 	STLINK2_STATUS_CORE_RUNNING = 0x80,
@@ -83,66 +74,6 @@ enum stlink2_swdclk {
 	STLINK2_SWDCLK_5KHZ    = 798U
 };
 
-/* Private peripheral bus base address */
-#define CORTEXM_PPB_BASE	0xE0000000
-
-#define CORTEXM_SCS_BASE	(CORTEXM_PPB_BASE + 0xE000)
-
-#define CORTEXM_AIRCR		(CORTEXM_SCS_BASE + 0xD0C)
-#define CORTEXM_CFSR		(CORTEXM_SCS_BASE + 0xD28)
-#define CORTEXM_HFSR		(CORTEXM_SCS_BASE + 0xD2C)
-#define CORTEXM_DFSR		(CORTEXM_SCS_BASE + 0xD30)
-#define CORTEXM_CPACR		(CORTEXM_SCS_BASE + 0xD88)
-#define CORTEXM_DHCSR		(CORTEXM_SCS_BASE + 0xDF0)
-#define CORTEXM_DCRSR		(CORTEXM_SCS_BASE + 0xDF4)
-#define CORTEXM_DCRDR		(CORTEXM_SCS_BASE + 0xDF8)
-#define CORTEXM_DEMCR		(CORTEXM_SCS_BASE + 0xDFC)
-
-/* Debug Halting Control and Status Register (DHCSR) */
-/* This key must be written to bits 31:16 for write to take effect */
-#define CORTEXM_DHCSR_DBGKEY		0xA05F0000
-/* Bits 31:26 - Reserved */
-#define CORTEXM_DHCSR_S_RESET_ST	(1 << 25)
-#define CORTEXM_DHCSR_S_RETIRE_ST	(1 << 24)
-/* Bits 23:20 - Reserved */
-#define CORTEXM_DHCSR_S_LOCKUP		(1 << 19)
-#define CORTEXM_DHCSR_S_SLEEP		(1 << 18)
-#define CORTEXM_DHCSR_S_HALT		(1 << 17)
-#define CORTEXM_DHCSR_S_REGRDY		(1 << 16)
-/* Bits 15:6 - Reserved */
-#define CORTEXM_DHCSR_C_SNAPSTALL	(1 << 5)	/* v7m only */
-/* Bit 4 - Reserved */
-#define CORTEXM_DHCSR_C_MASKINTS	(1 << 3)
-#define CORTEXM_DHCSR_C_STEP		(1 << 2)
-#define CORTEXM_DHCSR_C_HALT		(1 << 1)
-#define CORTEXM_DHCSR_C_DEBUGEN		(1 << 0)
-
-/* Debug Core Register Selector Register (DCRSR) */
-#define CORTEXM_DCRSR_REGWnR		0x00010000
-#define CORTEXM_DCRSR_REGSEL_MASK	0x0000001F
-#define CORTEXM_DCRSR_REGSEL_XPSR	0x00000010
-#define CORTEXM_DCRSR_REGSEL_MSP	0x00000011
-#define CORTEXM_DCRSR_REGSEL_PSP	0x00000012
-
-/* Debug Exception and Monitor Control Register (DEMCR) */
-/* Bits 31:25 - Reserved */
-#define CORTEXM_DEMCR_TRCENA		(1 << 24)
-/* Bits 23:20 - Reserved */
-#define CORTEXM_DEMCR_MON_REQ		(1 << 19)	/* v7m only */
-#define CORTEXM_DEMCR_MON_STEP		(1 << 18)	/* v7m only */
-#define CORTEXM_DEMCR_VC_MON_PEND	(1 << 17)	/* v7m only */
-#define CORTEXM_DEMCR_VC_MON_EN		(1 << 16)	/* v7m only */
-/* Bits 15:11 - Reserved */
-#define CORTEXM_DEMCR_VC_HARDERR	(1 << 10)
-#define CORTEXM_DEMCR_VC_INTERR		(1 << 9)	/* v7m only */
-#define CORTEXM_DEMCR_VC_BUSERR		(1 << 8)	/* v7m only */
-#define CORTEXM_DEMCR_VC_STATERR	(1 << 7)	/* v7m only */
-#define CORTEXM_DEMCR_VC_CHKERR		(1 << 6)	/* v7m only */
-#define CORTEXM_DEMCR_VC_NOCPERR	(1 << 5)	/* v7m only */
-#define CORTEXM_DEMCR_VC_MMERR		(1 << 4)	/* v7m only */
-/* Bits 3:1 - Reserved */
-#define CORTEXM_DEMCR_VC_CORERESET	(1 << 0)
-
 typedef struct stlink2 *stlink2_t;
 
 stlink2_t stlink2_open(const char *serial);
@@ -157,11 +88,7 @@ void stlink2_read_reg(stlink2_t dev, uint8_t idx, uint32_t *val);
 #include <stlink2/stm32.h>
 #include <stlink2/semihosting.h>
 
-/** INTERNAL */
-#include <libusb.h>
-#include <stdbool.h>
-#include <stdio.h>
-
+/** @todo internal... */
 struct stlink2 {
 	char *serial;
 	const char *name;
@@ -182,13 +109,7 @@ struct stlink2 {
 	} usb;
 };
 
-void stlink2_msleep(int milliseconds);
-
-/* stlink2.c */
 uint32_t stlink2_get_chipid(struct stlink2 *dev);
 void stlink2_read_debug32(struct stlink2 *dev, uint32_t addr, uint32_t *val);
-
-/* stm32.c */
-void stlink2_stm32_info(struct stlink2 *dev, char *buf, int buf_size);
 
 #endif /* STLINK2_H_ */

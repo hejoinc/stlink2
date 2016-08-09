@@ -1,5 +1,6 @@
 #include <stlink2.h>
 #include <stdio.h>
+#include <stdbool.h>
 
 void stlink2_semihosting_op_sys_writec(struct stlink2 *dev)
 {
