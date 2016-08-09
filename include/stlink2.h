@@ -10,11 +10,6 @@
 
 #define STLINK2_ARRAY_SIZE(array) (sizeof(array)/sizeof(array[0]))
 
-#define STLINK2_USB_VID_ST   0x0483
-#define STLINK2_USB_PID_V1   0x3744
-#define STLINK2_USB_PID_V2   0x3748
-#define STLINK2_USB_PID_V2_1 0x374b
-
 enum stlink2_loglevel {
 	STLINK2_LOGLEVEL_QUIET,
 	STLINK2_LOGLEVEL_ERROR,
@@ -88,61 +83,6 @@ enum stlink2_swdclk {
 	STLINK2_SWDCLK_5KHZ    = 798U
 };
 
-enum stlink2_stm32_devid {
-	STLINK2_STM32_DEVID_STM32F2XX          = 0x411,
-	STLINK2_STM32_DEVID_STM32L1XX_CAT3_MED = 0x427,
-	STLINK2_STM32_DEVID_STM32L0XX_CAT1     = 0x457
-};
-
-/* */
-enum stlink2_stm32_revid {
-	STLINK2_STM32_REVID_STM32F2XX_REV_A = 0x1000,
-	STLINK2_STM32_REVID_STM32F2XX_REV_B = 0x2000,
-	STLINK2_STM32_REVID_STM32F2XX_REV_Z = 0x1001,
-	STLINK2_STM32_REVID_STM32F2XX_REV_Y = 0x2001,
-	STLINK2_STM32_REVID_STM32F2XX_REV_X = 0x2003,
-
-	STLINK2_STM32_REVID_STM32F4XX_REV_A = 0x1000,
-	STLINK2_STM32_REVID_STM32F4XX_REV_Z = 0x1001,
-	STLINK2_STM32_REVID_STM32F4XX_REV_Y = 0x1003,
-	STLINK2_STM32_REVID_STM32F4XX_REV_1 = 0x1007,
-	STLINK2_STM32_REVID_STM32F4XX_REV_3 = 0x2001
-};
-
-enum stlink2_semihosting_operations {
-	STLINK2_SEMIHOSTING_OP_SYS_OPEN        = 0x01,
-	STLINK2_SEMIHOSTING_OP_SYS_CLOSE       = 0x02,
-	STLINK2_SEMIHOSTING_OP_SYS_WRITEC      = 0x03,
-	STLINK2_SEMIHOSTING_OP_SYS_WRITE0      = 0x04,
-	STLINK2_SEMIHOSTING_OP_SYS_WRITE       = 0x05,
-	STLINK2_SEMIHOSTING_OP_SYS_READ        = 0x06,
-	STLINK2_SEMIHOSTING_OP_SYS_READC       = 0x07,
-	STLINK2_SEMIHOSTING_OP_SYS_IS_ERROR    = 0x08,
-	STLINK2_SEMIHOSTING_OP_SYS_ISTTY       = 0x09,
-	STLINK2_SEMIHOSTING_OP_SYS_CLOCK       = 0x10,
-	STLINK2_SEMIHOSTING_OP_SYS_TIME        = 0x11,
-	STLINK2_SEMIHOSTING_OP_SYS_SYSTEM      = 0x12,
-	STLINK2_SEMIHOSTING_OP_SYS_ERRNO       = 0x13,
-	STLINK2_SEMIHOSTING_OP_SYS_GET_CMDLINE = 0x15,
-	STLINK2_SEMIHOSTING_OP_SYS_HEAPINFO    = 0x16,
-	STLINK2_SEMIHOSTING_EXCEPTION          = 0x18,
-	STLINK2_SEMIHOSTING_OP_SYS_SEEK        = 0x0a,
-	STLINK2_SEMIHOSTING_OP_SYS_FLEN        = 0x0c,
-	STLINK2_SEMIHOSTING_OP_SYS_TMPNAM      = 0x0d,
-	STLINK2_SEMIHOSTING_OP_SYS_REMOVE      = 0x0e,
-	STLINK2_SEMIHOSTING_OP_SYS_RENAME      = 0x0f,
-	STLINK2_SEMIHOSTING_OP_SYS_ELAPSED     = 0x30,
-	STLINK2_SEMIHOSTING_OP_SYS_TICKFREQ    = 0x31
-};
-
-enum stlink2_semihosting_exception {
-	STLINK2_SEMIHOSTING_EXCEPTION_BRANCH_THROUGH_ZERO = 0x20000,
-	STLINK2_SEMIHOSTING_EXCEPTION_UNDEFINED_INSTR     = 0x20001,
-	STLINK2_SEMIHOSTING_EXCEPTION_SOFTWARE_IRQ        = 0x20002,
-	STLINK2_SEMIHOSTING_EXCEPTION_PREFETCH_ABORT      = 0x20003,
-	STLINK2_SEMIHOSTING_EXCEPTION_APPLICATION_EXIT    = 0x20026
-};
-
 /* Private peripheral bus base address */
 #define CORTEXM_PPB_BASE	0xE0000000
 
@@ -212,13 +152,10 @@ void stlink2_probe(void);
 void stlink2_free(stlink2_t dev);
 void stlink2_read_reg(stlink2_t dev, uint8_t idx, uint32_t *val);
 
-#if 0
-void stlink2_mcu_reset(void);
-void stlink2_mcu_hardreset(void);
-void stlink2_mcu_run(void);
-void stlink2_mcu_halt(void);
-#endif
-
+#include <stlink2/log.h>
+#include <stlink2/usb.h>
+#include <stlink2/stm32.h>
+#include <stlink2/semihosting.h>
 
 /** INTERNAL */
 #include <libusb.h>
@@ -250,17 +187,6 @@ void stlink2_msleep(int milliseconds);
 /* stlink2.c */
 uint32_t stlink2_get_chipid(struct stlink2 *dev);
 void stlink2_read_debug32(struct stlink2 *dev, uint32_t addr, uint32_t *val);
-
-/* usb.c */
-void stlink2_usb_claim(struct stlink2 *st);
-void stlink2_usb_config_endpoints(struct stlink2 *dev);
-char *stlink2_usb_read_serial(libusb_device_handle *handle, struct libusb_device_descriptor *desc);
-ssize_t stlink2_usb_send_recv(struct stlink2 *dev,
-			      uint8_t *txbuf, size_t txsize,
-			      uint8_t *rxbuf, size_t rxsize);
-
-/* log.c */
-
 
 /* stm32.c */
 void stlink2_stm32_info(struct stlink2 *dev, char *buf, int buf_size);

@@ -39,10 +39,6 @@ void stlink2_stm32_info(struct stlink2 *dev, char *buf, int buf_size)
 	const char *rev_str = NULL;
 
 	switch (device_id) {
-	case STLINK2_STM32_DEVID_STM32L1XX_CAT3_MED:
-		device_str = "STM32L1xx (Cat.3 - Medium+ Density)";
-
-		break;
 	case STLINK2_STM32_DEVID_STM32F2XX:
 		switch (rev_id) {
 		case STLINK2_STM32_REVID_STM32F2XX_REV_A:
@@ -138,7 +134,7 @@ void stlink2_stm32_info(struct stlink2 *dev, char *buf, int buf_size)
 	}
 
 	if (!device_str) {
-		snprintf(buf, buf_size, "Cannot identify target as a STM32F2/4/7");
+		snprintf(buf, buf_size, "Cannot identify target as a STM32");
 		return;
 	}
 

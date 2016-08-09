@@ -337,7 +337,7 @@ static size_t stlink_probe_usb_devs(libusb_device **devs)
 		st = stlink2_dev_alloc();
 
 		st->usb.dev   = devh;
-		st->log.level = STLINK2_LOGLEVEL_INFO;
+		st->log.level = STLINK2_LOGLEVEL_TRACE;
 		st->log.fp    = stdout;
 		st->usb.pid   = desc.idProduct;
 		st->serial    = stlink2_usb_read_serial(st->usb.dev, &desc);

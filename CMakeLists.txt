@@ -77,6 +77,7 @@ endif()
 
 set(SRC
 	src/stlink2.c
+	src/log.c
 	src/usb.c
 	src/stm32.c
 	src/semihosting.c
@@ -85,8 +86,8 @@ set(SRC
 include_directories(include)
 include_directories(SYSTEM ${LIBUSB_INCLUDE_DIR})
 
-if(OCA_LINT AND BUILD_TESTING)
-	add_lint(${SRC})
+if(BUILD_TESTING)
+	add_lint("${SRC}")
 endif()
 
 add_library(${PROJECT_NAME}-static STATIC ${SRC})
