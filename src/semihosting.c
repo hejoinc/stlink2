@@ -1,5 +1,5 @@
 #include <stlink2.h>
-#include <unistd.h>
+#include <stdio.h>
 
 void stlink2_semihosting_op_sys_writec(struct stlink2 *dev)
 {
@@ -8,7 +8,7 @@ void stlink2_semihosting_op_sys_writec(struct stlink2 *dev)
 
 	stlink2_read_reg(dev, 1, &data);
 	stlink2_read_debug32(dev, data, &data);
-	rc = write(1, &data, 1);
+	rc = fwrite(&data, 1, 1, stdout);
 
 	if (rc < 0)
 		printf("error in write\n");
@@ -31,7 +31,7 @@ void stlink2_semihosting_op_sys_write0(struct stlink2 *dev)
 				break;
 			}
 
-			rc = write(1, &((char *)&data)[n], 1);
+			rc = fwrite(&((char *)&data)[n], 1, 1, stdout);
 			if (rc < 0)
 				printf("error in write\n");
 		}

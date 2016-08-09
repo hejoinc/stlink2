@@ -1,0 +1,30 @@
+environment:
+  P: "c:/projects/libs"
+
+# Operating system (build VM template)
+os: Visual Studio 2015
+
+# scripts that are called at very beginning, before repo cloning
+init:
+  - git config --global core.autocrlf input
+
+# clone directory
+clone_folder: c:\projects\stlink2
+
+platform: x64
+configuration: Release
+
+install:
+  # by default, all script lines are interpreted as batch
+
+build:
+  project: C:\projects\stlink2\build\Debug\stlink2.sln
+  parallel: true
+
+# scripts to run before build
+before_build:
+  - echo Running cmake...
+  - cd c:\projects\stlink2
+  - mkdir build\Debug
+  - cd build\Debug
+  - cmake ..\..\ -DCMAKE_BUILD_TYPE=Debug -G "Visual Studio 14 2015 Win64" -DCMAKE_INSTALL_PREFIX=%P%

@@ -1,7 +1,7 @@
 #include <stlink2.h>
 
 #ifdef STLINK2_HAVE_WINDOWS
-#warning Untested msleep on windows
+
 #include <windows.h>
 
 void stlink2_msleep(int milliseconds)
@@ -11,6 +11,7 @@ void stlink2_msleep(int milliseconds)
 
 #else
 
+#define _POSIX_C_SOURCE 199309L
 #include <time.h>
 
 void stlink2_msleep(int milliseconds)

@@ -2,6 +2,9 @@
 
 STMicroelectronics STlinkv2 programmer library and tools
 
+[![Build Status](https://travis-ci.org/xor-gate/stlink2.svg?branch=master)](https://travis-ci.org/xor-gate/stlink2)
+[![Build status](https://ci.appveyor.com/api/projects/status/u36ning58lxy7kwh?svg=true)](https://ci.appveyor.com/project/xor-gate/stlink2)
+
 # Differences
 
 The stlink2 project is different from the already existing [OpenOCD](https://github.com/ntfreak/openocd),

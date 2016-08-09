@@ -358,7 +358,9 @@ static size_t stlink_probe_usb_devs(libusb_device **devs)
 
 		stlink2_read_all_regs(st);
 		stlink2_mcu_run(st);
+
 		char descr[256];
+
 		stlink2_stm32_info(st, descr, sizeof(descr));
 		printf("      descr: %s\n\n", descr);
 
