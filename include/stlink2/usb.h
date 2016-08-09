@@ -14,7 +14,10 @@
 #define STLINK2_USB_PID_V2   0x3748
 #define STLINK2_USB_PID_V2_1 0x374b
 
+#define STLINK2_USB_CMD_SIZE 16 /**< USB command size in bytes */
+
 void stlink2_usb_claim(struct stlink2 *st);
+void stlink2_usb_set_name_from_pid(struct stlink2 *dev);
 void stlink2_usb_config_endpoints(struct stlink2 *dev);
 char *stlink2_usb_read_serial(libusb_device_handle *handle, struct libusb_device_descriptor *desc);
 ssize_t stlink2_usb_send_recv(struct stlink2 *dev,

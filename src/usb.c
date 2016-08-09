@@ -26,6 +26,20 @@ static char *stlink2_strdup(const char *s)
 }
 
 /**
+ * Set programmer name based on USB PID
+ */
+void stlink2_usb_set_name_from_pid(struct stlink2 *dev)
+{
+	static const char *stlinkv2   = "st-link/v2";
+	static const char *stlinkv2_1 = "st-link/v2-1";
+
+	if (dev->usb.pid == STLINK2_USB_PID_V2)
+		dev->name = stlinkv2;
+	else if (dev->usb.pid == STLINK2_USB_PID_V2_1)
+		dev->name = stlinkv2_1;
+}
+
+/**
  * Read binary or hex encoded serial from usb handle
  * @note The pointer must be freed by the callee when != NULL
  * @return hex encoded string

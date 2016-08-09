@@ -4,23 +4,22 @@
  * license that can be found in the LICENSE file.
  */
 #include <stlink2.h>
+#include <stlink2/cmd.h>
 #include <stlink2/cortexm.h>
 #include <stlink2/utils/bconv.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 
-#define STLINK2_CMD_SIZE       16 /**< USB command size in bytes */
-
 static enum stlink2_mode stlink2_get_mode(struct stlink2 *dev)
 {
-	uint8_t cmd[STLINK2_CMD_SIZE];
+	uint8_t cmd[STLINK2_USB_CMD_SIZE];
 	uint8_t rep[2];
 
 	memset(cmd, 0, sizeof(cmd));
 	cmd[0] = STLINK2_CMD_GET_CURRENT_MODE;
 
-	stlink2_usb_send_recv(dev, cmd, STLINK2_CMD_SIZE, rep, 2);
+	stlink2_usb_send_recv(dev, cmd, STLINK2_USB_CMD_SIZE, rep, 2);
 
 	switch (rep[0]) {
 	case STLINK2_MODE_DFU:
@@ -42,25 +41,25 @@ static enum stlink2_mode stlink2_get_mode(struct stlink2 *dev)
 
 static void stlink2_command(struct stlink2 *dev, uint8_t cmd, uint8_t param, uint8_t *buf, size_t bufsize)
 {
-	uint8_t _cmd[STLINK2_CMD_SIZE];
+	uint8_t _cmd[STLINK2_USB_CMD_SIZE];
 
 	memset(_cmd, 0, sizeof(_cmd));
 	_cmd[0] = cmd;
 	_cmd[1] = param;
 
-	stlink2_usb_send_recv(dev, _cmd, STLINK2_CMD_SIZE, buf, bufsize);
+	stlink2_usb_send_recv(dev, _cmd, STLINK2_USB_CMD_SIZE, buf, bufsize);
 }
 
 static void stlink2_debug_command(struct stlink2 *dev, uint8_t cmd, uint8_t param, uint8_t *buf, size_t bufsize)
 {
-	uint8_t _cmd[STLINK2_CMD_SIZE];
+	uint8_t _cmd[STLINK2_USB_CMD_SIZE];
 
 	memset(_cmd, 0, sizeof(_cmd));
 	_cmd[0] = STLINK2_CMD_DEBUG;
 	_cmd[1] = cmd;
 	_cmd[2] = param;
 
-	stlink2_usb_send_recv(dev, _cmd, STLINK2_CMD_SIZE, buf, bufsize);
+	stlink2_usb_send_recv(dev, _cmd, STLINK2_USB_CMD_SIZE, buf, bufsize);
 }
 
 static void stlink2_debug_command_u32(struct stlink2 *dev, uint8_t cmd, uint32_t param, uint8_t *buf, size_t bufsize)
@@ -239,7 +238,7 @@ void stlink2_read_reg(stlink2_t dev, uint8_t idx, uint32_t *val)
 
 void stlink2_write_reg(stlink2_t dev, uint8_t idx, uint32_t val)
 {
-	uint8_t _cmd[STLINK2_CMD_SIZE];
+	uint8_t _cmd[STLINK2_USB_CMD_SIZE];
 	uint8_t rep[8];
 
 	memset(_cmd, 0, sizeof(_cmd));
@@ -248,7 +247,7 @@ void stlink2_write_reg(stlink2_t dev, uint8_t idx, uint32_t val)
 	_cmd[2] = idx;
 	stlink2_bconv_u32_h_to_le(&_cmd[3], val);
 
-	stlink2_usb_send_recv(dev, _cmd, STLINK2_CMD_SIZE, rep, sizeof(rep));
+	stlink2_usb_send_recv(dev, _cmd, STLINK2_USB_CMD_SIZE, rep, sizeof(rep));
 }
 
 void stlink2_set_swdclk(stlink2_t dev, enum stlink2_swdclk clk)
@@ -285,20 +284,6 @@ static void stlink2_dev_free(struct stlink2 **dev)
 	*dev = NULL;
 }
 
-/**
- * Set programmer name based on USB PID
- */
-static void stlink2_set_name(struct stlink2 *dev)
-{
-	static const char *stlinkv2   = "st-link/v2";
-	static const char *stlinkv2_1 = "st-link/v2-1";
-
-	if (dev->usb.pid == STLINK2_USB_PID_V2)
-		dev->name = stlinkv2;
-	else if (dev->usb.pid == STLINK2_USB_PID_V2_1)
-		dev->name = stlinkv2_1;
-}
-
 static size_t stlink_probe_usb_devs(libusb_device **devs)
 {
 	struct stlink2 *st;
@@ -331,7 +316,7 @@ static size_t stlink_probe_usb_devs(libusb_device **devs)
 		st->usb.pid   = desc.idProduct;
 		st->serial    = stlink2_usb_read_serial(st->usb.dev, &desc);
 
-		stlink2_set_name(st);
+		stlink2_usb_set_name_from_pid(st);
 		stlink2_usb_config_endpoints(st);
 		stlink2_usb_claim(st);
 
