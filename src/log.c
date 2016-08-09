@@ -5,7 +5,7 @@
  */
 #include <stlink2.h>
 
-int stlink2_log_printf(enum stlink2_loglevel level, struct stlink2 *st, const char *restrict format, ...)
+int stlink2_log_printf(enum stlink2_loglevel level, struct stlink2 *st, const char *format, ...)
 {
 	if (level > st->log.level)
 		return 0;
