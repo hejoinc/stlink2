@@ -37,7 +37,7 @@ deploy:
     secure: fkz9VwJWNliur/B7iDFlAzios+PmO2KN5f13fukyHX/DxSJBWxMBO9tFI9cQIp8B
   artifact: /.*\.tests/*.exe/
   draft: false
-  prerelease: false
+  prerelease: true
   on:
-    branch: master                 # release from master branch only
-    appveyor_repo_tag: false        # deploy on tag push only
+    branch: master                # release from master branch only
+    appveyor_repo_tag: true       # deploy on tag push only
