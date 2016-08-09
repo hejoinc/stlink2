@@ -11,7 +11,7 @@ void stlink2_msleep(int milliseconds)
 
 #else
 
-#define _POSIX_C_SOURCE 199309L
+#define _GNU_SOURCE
 #include <time.h>
 
 void stlink2_msleep(int milliseconds)
