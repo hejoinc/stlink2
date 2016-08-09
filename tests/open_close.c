@@ -5,6 +5,12 @@ int main(void)
 {
 	stlink2_t dev;
 
+	stlink2_init();
 	dev = stlink2_open(NULL);
+
+	printf("serial: %s\n", stlink2_get_serial(dev));
+	printf("  name: %s\n", stlink2_get_name(dev));
+
 	stlink2_close(&dev);
+	stlink2_exit();
 }

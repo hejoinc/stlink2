@@ -8,6 +8,7 @@
 
 #include <stlink2.h>
 #include <libusb.h>
+#include <stdbool.h>
 
 #define STLINK2_USB_VID_ST   0x0483
 #define STLINK2_USB_PID_V1   0x3744
@@ -16,6 +17,7 @@
 
 #define STLINK2_USB_CMD_SIZE 16 /**< USB command size in bytes */
 
+bool stlink2_usb_probe_dev(libusb_device *dev, struct stlink2 *st);
 void stlink2_usb_claim(struct stlink2 *st);
 void stlink2_usb_set_name_from_pid(struct stlink2 *dev);
 void stlink2_usb_config_endpoints(struct stlink2 *dev);

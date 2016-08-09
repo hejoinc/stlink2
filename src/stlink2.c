@@ -11,7 +11,7 @@
 #include <string.h>
 #include <stdio.h>
 
-static enum stlink2_mode stlink2_get_mode(struct stlink2 *dev)
+enum stlink2_mode stlink2_get_mode(struct stlink2 *dev)
 {
 	uint8_t cmd[STLINK2_USB_CMD_SIZE];
 	uint8_t rep[2];
@@ -99,7 +99,7 @@ static void stlink2_write_debug32(struct stlink2 *dev, uint32_t addr, uint32_t v
 	stlink2_usb_send_recv(dev, _cmd, sizeof(_cmd), _rep, sizeof(_rep));
 }
 
-static uint32_t stlink2_get_coreid(struct stlink2 *st)
+uint32_t stlink2_get_coreid(struct stlink2 *st)
 {
 	uint32_t coreid;
 	uint8_t rep[4];
@@ -110,7 +110,7 @@ static uint32_t stlink2_get_coreid(struct stlink2 *st)
 	return coreid;
 }
 
-static void stlink2_get_version(struct stlink2 *dev)
+void stlink2_get_version(struct stlink2 *dev)
 {
 	uint8_t rep[6];
 
@@ -154,7 +154,7 @@ static void stlink2_set_exitmode_dfu(struct stlink2 *dev)
 	stlink2_command(dev, STLINK2_CMD_DFU, STLINK2_CMD_DFU_EXIT, NULL, 0);
 }
 
-static void stlink2_set_mode_swd(struct stlink2 *dev)
+void stlink2_set_mode_swd(struct stlink2 *dev)
 {
 	stlink2_set_exitmode_dfu(dev);
 	stlink2_debug_command(dev, STLINK2_CMD_DEBUG_ENTER_MODE, STLINK2_CMD_DEBUG_ENTER_SWD, NULL, 0);
@@ -284,110 +284,61 @@ static void stlink2_dev_free(struct stlink2 **dev)
 	*dev = NULL;
 }
 
-static size_t stlink_probe_usb_devs(libusb_device **devs)
+static libusb_context *ctx = NULL;
+
+void stlink2_init(void)
 {
-	struct stlink2 *st;
-	int i = 0;
-	int ret = 0;
-	struct libusb_device_descriptor desc;
-	libusb_device *dev;
-	libusb_device_handle *devh;
+	int ret;
 
-	/* Open stlinks and attach to list */
-	i = 0;
-	while ((dev = devs[i++]) != NULL) {
-		ret = libusb_get_device_descriptor(dev, &desc);
-		if (ret < 0)
-			break;
-
-		if (desc.idProduct != STLINK2_USB_PID_V2 &&
-		    desc.idProduct != STLINK2_USB_PID_V2_1)
-			continue;
-
-		ret = libusb_open(dev, &devh);
-		if (ret < 0)
-			break;
-
-		st = stlink2_dev_alloc();
-
-		st->usb.dev   = devh;
-		st->log.level = STLINK2_LOGLEVEL_TRACE;
-		st->log.fp    = stdout;
-		st->usb.pid   = desc.idProduct;
-		st->serial    = stlink2_usb_read_serial(st->usb.dev, &desc);
-
-		stlink2_usb_set_name_from_pid(st);
-		stlink2_usb_config_endpoints(st);
-		stlink2_usb_claim(st);
-
-		stlink2_get_version(st);
-		stlink2_get_mode(st);
-		stlink2_set_mode_swd(st);
-		stlink2_get_coreid(st);
-		stlink2_get_chipid(st);
-
-		stlink2_mcu_halt(st);
-		stlink2_mcu_reset(st);
-		stlink2_mcu_run(st);
-
-		stlink2_read_all_regs(st);
-		stlink2_mcu_run(st);
-
-		char descr[256];
-
-		stlink2_stm32_info(st, descr, sizeof(descr));
-		printf("      descr: %s\n\n", descr);
-
-		stlink2_dev_free(&st);
-	}
-
-	return 0;
+	ret = libusb_init(&ctx);
+	if (ret < 0)
+		ctx = NULL;
 }
 
-void stlink2_probe(void)
+void stlink2_exit(void)
 {
-	libusb_device **devs;
-
-	int r;
-	ssize_t cnt;
-
-	r = libusb_init(NULL);
-	if (r < 0)
-		return;
-
-	cnt = libusb_get_device_list(NULL, &devs);
-	if (cnt < 0)
-		return;
-
-	stlink_probe_usb_devs(devs);
-	libusb_free_device_list(devs, 1);
-
-	libusb_exit(NULL);
+	libusb_exit(ctx);
+	ctx = NULL;
 }
 
 struct stlink2 *stlink2_open(const char *serial)
 {
+	ssize_t cnt;
 	struct stlink2 *dev;
 
-	(void)serial;
+	dev = stlink2_dev_alloc();
 
-	dev = calloc(1, sizeof(*dev));
+	libusb_device **devs;
+
+	cnt = libusb_get_device_list(ctx, &devs);
+	if (cnt < 0)
+		return NULL;
+
+	for (ssize_t n = 0; n < cnt; n++) {
+		if (!stlink2_usb_probe_dev(devs[n], dev))
+			continue;
+		if (!serial)
+			break;
+		if (strncmp(serial, dev->serial, strlen(dev->serial)) == 0)
+			break;
+	}
+
+	libusb_free_device_list(devs, 1);
 
 	return dev;
 }
 
 void stlink2_close(stlink2_t *dev)
 {
-	if (!dev)
-		return;
-	if (!*dev)
-		return;
+	stlink2_dev_free(dev);
+}
 
-	struct stlink2 *_dev = *dev;
+const char *stlink2_get_serial(stlink2_t dev)
+{
+	return dev->serial;
+}
 
-	free(_dev->serial);
-	if (_dev->usb.dev)
-		libusb_close(_dev->usb.dev);
-	free(_dev);
-	dev = NULL;
+const char *stlink2_get_name(stlink2_t dev)
+{
+	return dev->name;
 }

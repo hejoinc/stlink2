@@ -19,10 +19,43 @@ static char *stlink2_strdup(const char *s)
 	const size_t n = strlen(s);
 	char *p = malloc(n + 1);
 
-	if (p)
+	if (p) {
 		memcpy(p, s, n);
+		p[n] = 0;
+	}
 
 	return p;
+}
+
+bool stlink2_usb_probe_dev(libusb_device *dev, struct stlink2 *st)
+{
+	int ret = 0;
+	struct libusb_device_descriptor desc;
+	libusb_device_handle *devh;
+
+	ret = libusb_get_device_descriptor(dev, &desc);
+	if (ret < 0)
+		return false;
+
+	if (desc.idProduct != STLINK2_USB_PID_V2 &&
+	    desc.idProduct != STLINK2_USB_PID_V2_1)
+		return false;
+
+	ret = libusb_open(dev, &devh);
+	if (ret < 0)
+		return false;
+
+	st->usb.dev   = devh;
+	st->log.level = STLINK2_LOGLEVEL_TRACE;
+	st->log.fp    = stdout;
+	st->usb.pid   = desc.idProduct;
+	st->serial    = stlink2_usb_read_serial(st->usb.dev, &desc);
+
+	stlink2_usb_claim(st);
+	stlink2_usb_config_endpoints(st);
+	stlink2_usb_set_name_from_pid(st);
+
+	return true;
 }
 
 /**
@@ -63,9 +96,7 @@ char *stlink2_usb_read_serial(libusb_device_handle *handle, struct libusb_device
 		}
 	}
 
-	if (ishexserial) {
-		printf("     serial: %s\n", serial);
-	} else {
+	if (!ishexserial) {
 		printf("     serial: ");
 
 		for (int n = 0; n < ret; n++)

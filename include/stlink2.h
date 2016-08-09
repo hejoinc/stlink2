@@ -40,11 +40,15 @@ enum stlink2_swdclk {
 
 typedef struct stlink2 *stlink2_t;
 
+void stlink2_init(void);
+void stlink2_exit(void);
+
 stlink2_t stlink2_open(const char *serial);
 void stlink2_close(stlink2_t *dev);
 
-void stlink2_probe(void);
-void stlink2_free(stlink2_t dev);
+const char *stlink2_get_name(stlink2_t dev);
+const char *stlink2_get_serial(stlink2_t dev);
+
 void stlink2_read_reg(stlink2_t dev, uint8_t idx, uint32_t *val);
 
 #include <stlink2/log.h>

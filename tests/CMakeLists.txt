@@ -6,7 +6,6 @@ message(STATUS "tests enabled")
 
 set(TESTS
 	open_close
-	probe
 )
 
 foreach(test ${TESTS})
