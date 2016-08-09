@@ -57,6 +57,8 @@ set(SRC
 	src/stlink2.c
 	src/usb.c
 	src/stm32.c
+	src/semihosting.c
+	src/utils/msleep.c
 )
 include_directories(include)
 include_directories(${LIBUSB_INCLUDE_DIR})

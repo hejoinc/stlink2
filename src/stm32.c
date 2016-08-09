@@ -147,5 +147,3 @@ void stlink2_stm32_info(struct stlink2 *dev, char *buf, int buf_size)
 	else
 		snprintf(buf, buf_size, "%s - Rev: unknown (0x%04x)", device_str, rev_id);
 }
-
-

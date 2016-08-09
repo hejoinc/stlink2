@@ -245,8 +245,24 @@ struct stlink2 {
 	} usb;
 };
 
+void stlink2_msleep(int milliseconds);
+
+/* stlink2.c */
 uint32_t stlink2_get_chipid(struct stlink2 *dev);
+void stlink2_read_debug32(struct stlink2 *dev, uint32_t addr, uint32_t *val);
+
+/* usb.c */
 void stlink2_usb_claim(struct stlink2 *st);
+void stlink2_usb_config_endpoints(struct stlink2 *dev);
 char *stlink2_usb_read_serial(libusb_device_handle *handle, struct libusb_device_descriptor *desc);
+ssize_t stlink2_usb_send_recv(struct stlink2 *dev,
+			      uint8_t *txbuf, size_t txsize,
+			      uint8_t *rxbuf, size_t rxsize);
+
+/* log.c */
+
+
+/* stm32.c */
+void stlink2_stm32_info(struct stlink2 *dev, char *buf, int buf_size);
 
 #endif /* STLINK2_H_ */

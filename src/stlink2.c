@@ -5,22 +5,10 @@
  */
 #include <stlink2.h>
 #include <stdlib.h>
+#include <string.h>
 #include <stdio.h>
-#include <stdbool.h>
-#include <inttypes.h>
-#include <time.h>
-#include <unistd.h>
 
 #define STLINK2_CMD_SIZE       16 /**< USB command size in bytes */
-
-static void stlink2_msleep(unsigned int milliseconds)
-{
-	struct timespec ts;
-
-	ts.tv_sec = milliseconds / 1000;
-	ts.tv_nsec = milliseconds % 1000 * 1000000;
-	nanosleep(&ts, NULL);
-}
 
 static inline uint32_t stlink2_conv_u32_le_to_h(const uint8_t *buf)
 {
@@ -98,7 +86,7 @@ static void stlink2_debug_command_u32(struct stlink2 *dev, uint8_t cmd, uint32_t
 	stlink2_usb_send_recv(dev, _cmd, sizeof(_cmd), buf, bufsize);
 }
 
-static void stlink2_read_debug32(struct stlink2 *dev, uint32_t addr, uint32_t *val)
+void stlink2_read_debug32(struct stlink2 *dev, uint32_t addr, uint32_t *val)
 {
 	(void)val;
 	uint8_t _rep[8];
@@ -160,101 +148,17 @@ enum stlink2_status stlink2_get_status(struct stlink2 *dev)
 
 	switch (rep[0]) {
 	case STLINK2_STATUS_CORE_RUNNING:
-#ifdef TEST
 		printf("     status: core running\n");
-#endif
 		break;
 	case STLINK2_STATUS_CORE_HALTED:
-#ifdef TEST
 		printf("     status: core halted\n");
-#endif
 		break;
 	default:
-#ifdef TEST
 		printf("     status: unknown\n");
-#endif
 		return STLINK2_STATUS_UNKNOWN;
 	}
 
 	return rep[0];
-}
-
-void stlink2_semihosting_op_sys_writec(struct stlink2 *dev)
-{
-	ssize_t rc;
-	uint32_t data;
-
-	stlink2_read_reg(dev, 1, &data);
-	stlink2_read_debug32(dev, data, &data);
-	rc = write(1, &data, 1);
-
-	if (rc < 0)
-		printf("error in write\n");
-}
-
-void stlink2_semihosting_op_sys_write0(struct stlink2 *dev)
-{
-	ssize_t rc;
-	uint32_t data;
-	uint32_t addr;
-
-	stlink2_read_reg(dev, 1, &data);
-	stlink2_read_debug32(dev, data, &addr);
-	do {
-		stlink2_read_debug32(dev, addr, &data);
-		for (size_t n = 0; n < 4; n++) {
-			if (((char *)&data)[n] == 0) {
-				data = 0;
-				break;
-			}
-
-			rc = write(1, &((char *)&data)[n], 1);
-			if (rc < 0)
-				printf("error in write\n");
-		}
-		addr += 4;
-	} while (data != 0);
-}
-
-bool stlink2_semihosting(struct stlink2 *dev)
-{
-	bool ret = false;
-	uint32_t data;
-
-	uint32_t pc;
-	uint32_t r0;
-
-	stlink2_read_reg(dev, 15, &pc);
-	stlink2_read_debug32(dev, pc, &data);
-
-	if (((data & 0xffff0000) >> 16) == 0xbeab) {
-		stlink2_read_reg(dev, 0, &r0);
-		switch (r0) {
-		case STLINK2_SEMIHOSTING_OP_SYS_WRITEC:
-			stlink2_semihosting_op_sys_writec(dev);
-			break;
-		case STLINK2_SEMIHOSTING_OP_SYS_WRITE0:
-			stlink2_semihosting_op_sys_write0(dev);
-			break;
-		case STLINK2_SEMIHOSTING_OP_SYS_WRITE:
-			stlink2_read_reg(dev, 1, &data);
-			stlink2_read_debug32(dev, data, &data);
-			break;
-		case STLINK2_SEMIHOSTING_OP_SYS_FLEN:
-			printf("SYS_FLEN\n");
-			break;
-		case STLINK2_SEMIHOSTING_EXCEPTION:
-			stlink2_read_reg(dev, 1, &data);
-			printf("Exception: %08x\n", data);
-			break;
-		default:
-			printf("Unsupported %02x\n", r0);
-			break;
-		}
-		ret = true;
-	}
-
-	return ret;
 }
 
 static void stlink2_set_exitmode_dfu(struct stlink2 *dev)
@@ -441,6 +345,22 @@ static size_t stlink_probe_usb_devs(libusb_device **devs)
 		stlink2_set_name(st);
 		stlink2_usb_config_endpoints(st);
 		stlink2_usb_claim(st);
+
+		stlink2_get_version(st);
+		stlink2_get_mode(st);
+		stlink2_set_mode_swd(st);
+		stlink2_get_coreid(st);
+		stlink2_get_chipid(st);
+
+		stlink2_mcu_halt(st);
+		stlink2_mcu_reset(st);
+		stlink2_mcu_run(st);
+
+		stlink2_read_all_regs(st);
+		stlink2_mcu_run(st);
+		char descr[256];
+		stlink2_stm32_info(st, descr, sizeof(descr));
+		printf("      descr: %s\n\n", descr);
 
 		stlink2_dev_free(&st);
 	}
