@@ -271,6 +271,11 @@ static struct stlink2 *stlink2_dev_alloc(void)
 
 static void stlink2_dev_free(struct stlink2 **dev)
 {
+	if (!dev)
+		return;
+	if (!*dev)
+		return;
+
 	struct stlink2 *_dev = *dev;
 
 	free(_dev->serial);
@@ -303,10 +308,9 @@ void stlink2_exit(void)
 
 struct stlink2 *stlink2_open(const char *serial)
 {
+	bool found = false;
 	ssize_t cnt;
 	struct stlink2 *dev;
-
-	dev = stlink2_dev_alloc();
 
 	libusb_device **devs;
 
@@ -314,16 +318,33 @@ struct stlink2 *stlink2_open(const char *serial)
 	if (cnt < 0)
 		return NULL;
 
+	dev = stlink2_dev_alloc();
+
+	/* Loop trough all libusb devices and probe stlink2 */
 	for (ssize_t n = 0; n < cnt; n++) {
 		if (!stlink2_usb_probe_dev(devs[n], dev))
 			continue;
-		if (!serial)
+
+		/* When no specific serial is search we are done here */
+		if (!serial) {
+			found = true;
 			break;
-		if (strncmp(serial, dev->serial, strlen(dev->serial)) == 0)
+		}
+
+		/* Check if current stlink has matched serial */
+		if (strncmp(serial, dev->serial, strlen(dev->serial)) == 0) {
+			found = true;
 			break;
+		}
+
+		stlink2_dev_free(&dev);
+		dev = stlink2_dev_alloc();
 	}
 
 	libusb_free_device_list(devs, 1);
+
+	if (!found)
+		stlink2_dev_free(&dev);
 
 	return dev;
 }
