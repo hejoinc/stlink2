@@ -6,6 +6,10 @@
 #ifndef STLINK2_LOG_H_
 #define STLINK2_LOG_H_
 
+#include <stlink2.h>
+#include <stdio.h>
+#include <stdarg.h>
+
 int stlink2_log_printf(enum stlink2_loglevel level, struct stlink2 *st, const char * restrict format, ...);
 
 #endif /* STLINK2_LOG_H_ */

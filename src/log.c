@@ -4,8 +4,6 @@
  * license that can be found in the LICENSE file.
  */
 #include <stlink2.h>
-#include <stdio.h>
-#include <stdarg.h>
 
 int stlink2_log_printf(enum stlink2_loglevel level, struct stlink2 *st, const char *restrict format, ...)
 {
