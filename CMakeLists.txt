@@ -53,7 +53,11 @@ endif()
 
 check_function_exists(nanosleep HAVE_NANOSLEEP)
 
-set(SRC src/stlink2.c)
+set(SRC
+	src/stlink2.c
+	src/usb.c
+	src/stm32.c
+)
 include_directories(include)
 include_directories(${LIBUSB_INCLUDE_DIR})
 

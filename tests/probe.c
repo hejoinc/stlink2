@@ -1,13 +1,18 @@
+/*
+ * Copyright 2016 Jerry Jacobs. All rights reserved.
+ * Use of this source code is governed by the MIT
+ * license that can be found in the LICENSE file.
+ */
 #include <stdio.h>
 #include <stlink2.h>
 
 int main(void)
 {
-/*
-	stlink2_t st;
+//	stlink2_t st;
 
 	stlink2_probe();
 
+/*
 	printf("====== name: %s\n", st->name);
 	stlink2_get_version(st);
 	stlink2_get_mode(st);

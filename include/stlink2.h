@@ -219,4 +219,34 @@ void stlink2_mcu_run(void);
 void stlink2_mcu_halt(void);
 #endif
 
+
+/** INTERNAL */
+#include <libusb.h>
+#include <stdbool.h>
+#include <stdio.h>
+
+struct stlink2 {
+	char *serial;
+	const char *name;
+	struct {
+		uint8_t stlink;
+		uint8_t jtag;
+		uint8_t swim;
+	} fw;
+	struct {
+		enum stlink2_loglevel level;
+		FILE *fp;
+	} log;
+	struct {
+		uint16_t pid;
+		libusb_device_handle *dev;
+		uint8_t rx_ep;
+		uint8_t tx_ep;
+	} usb;
+};
+
+uint32_t stlink2_get_chipid(struct stlink2 *dev);
+void stlink2_usb_claim(struct stlink2 *st);
+char *stlink2_usb_read_serial(libusb_device_handle *handle, struct libusb_device_descriptor *desc);
+
 #endif /* STLINK2_H_ */
