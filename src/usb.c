@@ -76,12 +76,13 @@ void stlink2_usb_set_name_from_pid(struct stlink2 *dev)
 
 char *stlink2_usb_read_binary_serial(const char *serial, size_t len)
 {
+	/** @todo need to get rid of this weird calculation... + 1, - 1 */
 	const size_t size = (len * 2) + 1;
 	char *_serial = malloc(size);
 
 	if (_serial) {
-		stlink2_hexstr_from_bin(_serial, size, serial, len);
-		_serial[size] = 0;
+		stlink2_hexstr_from_bin(_serial, size - 1, serial, len);
+		_serial[size - 1] = 0;
 	}
 
 	return _serial;
