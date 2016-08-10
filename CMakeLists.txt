@@ -25,11 +25,7 @@ message(STATUS "libusb inc: " ${LIBUSB_INCLUDE_DIR})
 message(STATUS "libusb lib: " ${LIBUSB_LIBRARY})
 
 include(cmake/CheckCCompilerFlag.txt)
-if(WIN32)
-	function(add_lint SOURCES_LIST)
-		message(STATUS "Linting not supported on WINx platforms")
-	endfunction()
-else()
+if (NOT WIN32)
 	include(cmake/Lint.txt)
 endif()
 
@@ -93,7 +89,7 @@ include_directories(include)
 include_directories(SYSTEM ${LIBUSB_INCLUDE_DIR})
 
 if(BUILD_TESTING)
-	add_lint("${SRC}")
+	add_lint_target("${SRC}")
 endif()
 
 add_library(${PROJECT_NAME}-static STATIC ${SRC})
