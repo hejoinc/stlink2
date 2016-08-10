@@ -1,3 +1,8 @@
+/*
+ * Copyright 2016 Jerry Jacobs. All rights reserved.
+ * Use of this source code is governed by the MIT
+ * license that can be found in the LICENSE file.
+ */
 #include <stlink2/cmd.h>
 
 uint32_t stlink2_cmd_get_chipid(struct stlink2 *dev)

@@ -4,6 +4,8 @@
  * license that can be found in the LICENSE file.
  */
 #include <stlink2.h>
+#include <stlink2/utils/hexstr.h>
+
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
@@ -72,6 +74,19 @@ void stlink2_usb_set_name_from_pid(struct stlink2 *dev)
 		dev->name = stlinkv2_1;
 }
 
+char *stlink2_usb_read_binary_serial(const char *serial, size_t len)
+{
+	const size_t size = (len * 2) + 1;
+	char *_serial = malloc(size);
+
+	if (_serial) {
+		stlink2_hexstr_from_bin(_serial, size, serial, len);
+		_serial[size] = 0;
+	}
+
+	return _serial;
+}
+
 /**
  * Read binary or hex encoded serial from usb handle
  * @note The pointer must be freed by the callee when != NULL
@@ -90,20 +105,15 @@ char *stlink2_usb_read_serial(libusb_device_handle *handle, struct libusb_device
 		return NULL;
 
 	for (int n = 0; n < ret; n++) {
-		if (!isxdigit(serial[n])) {
-			ishexserial = false;
-			break;
-		}
+		if (isxdigit(serial[n]))
+			continue;
+
+		ishexserial = false;
+		break;
 	}
 
-	if (!ishexserial) {
-		printf("     serial: ");
-
-		for (int n = 0; n < ret; n++)
-			printf("%02X", serial[n]);
-
-		printf("\n");
-	}
+	if (!ishexserial)
+		return stlink2_usb_read_binary_serial(serial, ret);
 
 	return stlink2_strdup(serial);
 }

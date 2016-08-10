@@ -7,7 +7,7 @@ int main(void)
 
 	stlink2_init();
 
-	dev = stlink2_open(NULL);
+	dev = stlink2_open("573f6e06517751513713083f");
 	if (dev) {
 		printf("serial: %s\n", stlink2_get_serial(dev));
 		printf("  name: %s\n", stlink2_get_name(dev));

@@ -41,23 +41,25 @@ else ()
 	check_function_exists(nanosleep STLINK2_HAVE_NANOSLEEP)
 	add_definitions (-D_GNU_SOURCE)
 	add_cflag_if_supported("-Wall")
-else ()
-endif()
 
-if(${CMAKE_BUILD_TYPE} MATCHES "Debug")
-	add_cflag_if_supported("-O0")
-	add_cflag_if_supported("-ggdb")
-	add_cflag_if_supported("-fprofile-arcs")
-	add_cflag_if_supported("-ftest-coverage")
+	if(${CMAKE_BUILD_TYPE} MATCHES "Debug")
+		add_cflag_if_supported("-O0")
+		add_cflag_if_supported("-ggdb")
+		add_cflag_if_supported("-fprofile-arcs")
+		add_cflag_if_supported("-ftest-coverage")
+		add_cflag_if_supported("-fno-omit-frame-pointer")
 
-	add_definitions("-DDEBUG")
+		add_definitions("-DSTLINK2_DEBUG")
 
-	include(CTest)
-else()
-	add_cflag_if_supported("-O2")
-	add_cflag_if_supported("-Werror")
+		include(CTest)
+	else()
+		add_cflag_if_supported("-O2")
+		add_cflag_if_supported("-Werror")
+		add_cflag_if_supported("-fomit-frame-pointer")
+		add_cflag_if_supported("-fvisibility=hidden")
 
-	add_definitions("-DRELEASE")
+		add_definitions("-DSTLINK2_RELEASE")
+	endif()
 endif()
 
 if(MSVC)
@@ -84,6 +86,7 @@ set(SRC
 	src/stm32.c
 	src/semihosting.c
 	src/utils/bconv.c
+	src/utils/hexstr.c
 	src/utils/msleep.c
 )
 include_directories(include)
