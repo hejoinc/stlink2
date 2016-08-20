@@ -5,17 +5,49 @@
  */
 #include <stlink2.h>
 
-int stlink2_log_printf(enum stlink2_loglevel level, struct stlink2 *st, const char *format, ...)
+static const char *stlink2_loglevel_str(enum stlink2_loglevel level)
 {
-	if (level > st->log.level)
+	switch (level) {
+	case STLINK2_LOGLEVEL_ERROR:
+		return "[ERROR]";
+	case STLINK2_LOGLEVEL_WARN:
+		return "[WARN] ";
+	case STLINK2_LOGLEVEL_INFO:
+		return "[INFO] ";
+	case STLINK2_LOGLEVEL_DEBUG:
+		return "[DEBUG]";
+	case STLINK2_LOGLEVEL_TRACE:
+		return "[TRACE]";
+	default:
+		break;
+	}
+
+	return "";
+}
+
+int stlink2_log(enum stlink2_loglevel level, const char *file, unsigned int line, struct stlink2 *dev,
+		const char *format, ...)
+{
+	if (!dev->log.fp || level > dev->log.level)
 		return 0;
 
 	int ret;
 	va_list args;
 
 	va_start(args, format);
-	ret = vfprintf(st->log.fp, format, args);
+	ret = fprintf(dev->log.fp, "%s %s:%d : ", stlink2_loglevel_str(level), file, line);
+	ret = vfprintf(dev->log.fp, format, args);
 	va_end(args);
 
 	return ret;
+}
+
+void stlink2_log_set_file(struct stlink2 *dev, FILE *file)
+{
+	dev->log.fp = file;
+}
+
+void stlink2_log_set_level(struct stlink2 *dev, enum stlink2_loglevel level)
+{
+	dev->log.level = level;
 }

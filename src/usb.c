@@ -48,8 +48,8 @@ bool stlink2_usb_probe_dev(libusb_device *dev, struct stlink2 *st)
 		return false;
 
 	st->usb.dev   = devh;
-	st->log.level = STLINK2_LOGLEVEL_TRACE;
-	st->log.fp    = stdout;
+	stlink2_log_set_file(st, stdout);
+	stlink2_log_set_level(st, STLINK2_LOGLEVEL_INFO);
 	st->usb.pid   = desc.idProduct;
 	st->serial    = stlink2_usb_read_serial(st->usb.dev, &desc);
 
@@ -178,10 +178,9 @@ ssize_t stlink2_usb_send_recv(struct stlink2 *dev,
 		return 0;
 	}
 
-	stlink2_log_printf(STLINK2_LOGLEVEL_TRACE, dev, "req: ");
+	STLINK2_LOG_TRACE(dev, "req: ");
 	for (size_t n = 0; n < txsize; n++)
-		stlink2_log_printf(STLINK2_LOGLEVEL_TRACE, dev, "%02x ", txbuf[n]);
-	stlink2_log_printf(STLINK2_LOGLEVEL_TRACE, dev, "\n");
+		STLINK2_LOG_TRACE(dev, "%02x ", txbuf[n]);
 
 	if (!rxbuf || !rxsize)
 		return 0;
@@ -196,10 +195,9 @@ ssize_t stlink2_usb_send_recv(struct stlink2 *dev,
 		return 0;
 	}
 
-	stlink2_log_printf(STLINK2_LOGLEVEL_TRACE, dev, "rep: ");
+	STLINK2_LOG_TRACE(dev, "rep: ");
 	for (size_t n = 0; n < rxsize; n++)
-		stlink2_log_printf(STLINK2_LOGLEVEL_TRACE, dev, "%02x ", rxbuf[n]);
-	stlink2_log_printf(STLINK2_LOGLEVEL_TRACE, dev, "\n");
+		STLINK2_LOG_TRACE(dev, "%02x ", rxbuf[n]);
 
 	return 0;
 }

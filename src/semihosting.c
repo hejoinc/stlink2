@@ -7,6 +7,16 @@
 #include <stdio.h>
 #include <stdbool.h>
 
+void stlink2_semihosting_op_sys_open(struct stlink2 *dev)
+{
+	(void)dev;
+}
+
+void stlink2_semihosting_op_sys_close(struct stlink2 *dev)
+{
+	(void)dev;
+}
+
 void stlink2_semihosting_op_sys_writec(struct stlink2 *dev)
 {
 	ssize_t rc;
@@ -66,8 +76,6 @@ bool stlink2_semihosting(struct stlink2 *dev)
 			stlink2_semihosting_op_sys_write0(dev);
 			break;
 		case STLINK2_SEMIHOSTING_OP_SYS_WRITE:
-			stlink2_read_reg(dev, 1, &data);
-			stlink2_read_debug32(dev, data, &data);
 			break;
 		case STLINK2_SEMIHOSTING_OP_SYS_FLEN:
 			printf("SYS_FLEN\n");
@@ -77,7 +85,6 @@ bool stlink2_semihosting(struct stlink2 *dev)
 			printf("Exception: %08x\n", data);
 			break;
 		default:
-			printf("Unsupported %02x\n", r0);
 			break;
 		}
 		ret = true;

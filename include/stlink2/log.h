@@ -19,6 +19,19 @@ enum stlink2_loglevel {
 	STLINK2_LOGLEVEL_TRACE
 };
 
-int stlink2_log_printf(enum stlink2_loglevel level, struct stlink2 *st, const char *format, ...);
+#define STLINK2_LOG_ERROR(dev, format, ...) \
+	stlink2_log(STLINK2_LOGLEVEL_ERROR, __FILE__, __LINE__, dev, format, ##__VA_ARGS__)
+#define STLINK2_LOG_WARN(dev, format, ...) \
+	stlink2_log(STLINK2_LOGLEVEL_WARN, __FILE__, __LINE__, dev, format, ##__VA_ARGS__)
+#define STLINK2_LOG_INFO(dev, format, ...) \
+	stlink2_log(STLINK2_LOGLEVEL_INFO, __FILE__, __LINE__, dev, format, ##__VA_ARGS__)
+#define STLINK2_LOG_DEBUG(dev, format, ...) \
+	stlink2_log(STLINK2_LOGLEVEL_DEBUG, __FILE__, __LINE__, dev, format, ##__VA_ARGS__)
+#define STLINK2_LOG_TRACE(dev, format, ...) \
+	stlink2_log(STLINK2_LOGLEVEL_TRACE, __FILE__, __LINE__, dev, format, ##__VA_ARGS__)
+
+void stlink2_log_set_file(struct stlink2 *dev, FILE *file);
+void stlink2_log_set_level(struct stlink2 *dev, enum stlink2_loglevel level);
+int stlink2_log(enum stlink2_loglevel, const char *file, unsigned int line, struct stlink2 *dev, const char *format, ...);
 
 #endif /* STLINK2_LOG_H_ */

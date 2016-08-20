@@ -5,6 +5,7 @@ endif()
 message(STATUS "tests enabled")
 
 set(TESTS
+	log
 	open_close
 )
 
