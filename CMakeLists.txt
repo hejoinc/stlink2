@@ -88,24 +88,27 @@ set(SRC
 include_directories(include)
 include_directories(SYSTEM ${LIBUSB_INCLUDE_DIR})
 
+set(STLINK2_LIBRARY_STATIC ${PROJECT_NAME}-static)
+set(STLINK2_LIBRARY_SHARED ${PROJECT_NAME}-shared)
+
 if(BUILD_TESTING)
 	add_lint_target("${SRC}")
 endif()
 
-add_library(${PROJECT_NAME}-static STATIC ${SRC})
-set_target_properties(${PROJECT_NAME}-static PROPERTIES OUTPUT_NAME ${PROJECT_NAME} PREFIX "")
-target_link_libraries(${PROJECT_NAME}-static  ${LIBUSB_LIBRARY})
+add_library(${STLINK2_LIBRARY_STATIC} STATIC ${SRC})
+set_target_properties(${STLINK2_LIBRARY_STATIC} PROPERTIES OUTPUT_NAME ${PROJECT_NAME} PREFIX "")
+target_link_libraries(${STLINK2_LIBRARY_STATIC} ${LIBUSB_LIBRARY})
 
-add_library(${PROJECT_NAME}-shared SHARED ${SRC})
-set_target_properties(${PROJECT_NAME}-shared PROPERTIES OUTPUT_NAME ${PROJECT_NAME} PREFIX "")
-target_link_libraries(${PROJECT_NAME}-shared ${LIBUSB_LIBRARY})
+add_library(${STLINK2_LIBRARY_SHARED} SHARED ${SRC})
+set_target_properties(${STLINK2_LIBRARY_SHARED} PROPERTIES OUTPUT_NAME ${PROJECT_NAME} PREFIX "")
+target_link_libraries(${STLINK2_LIBRARY_SHARED} ${LIBUSB_LIBRARY})
 
 if (APPLE)
 	find_library(ObjC objc)
 	find_library(CoreFoundation CoreFoundation)
 	find_library(IOKit IOKit)
-	target_link_libraries(${PROJECT_NAME}-static ${CoreFoundation} ${IOKit} ${ObjC})
-	target_link_libraries(${PROJECT_NAME}-shared ${CoreFoundation} ${IOKit} ${ObjC})
+	target_link_libraries(${STLINK2_LIBRARY_STATIC} ${CoreFoundation} ${IOKit} ${ObjC})
+	target_link_libraries(${STLINK2_LIBRARY_SHARED} ${CoreFoundation} ${IOKit} ${ObjC})
 endif()
 
 add_subdirectory("tests")
