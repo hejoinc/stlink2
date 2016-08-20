@@ -17,13 +17,6 @@ It is a complete clean rewrite to have full programmer control as a library with
 
 As it only uses the CMake build system it doesn't depend on obsecure non-portable shell-code and unix tools.
 
-# Features
-
-- [] Programmer-control-as-a-library
-- [] Full programmer control
-- [] ARM Semihosting support
-- [] ARM ITM (Instrumentation macro cell) support
-
 # License
 
 All code is [MIT](LICENSE) licensed, except for other components under the `3thparty` folder.
