@@ -277,8 +277,10 @@ void stlink2_init(void)
 
 void stlink2_exit(void)
 {
-	libusb_exit(ctx);
-	ctx = NULL;
+	if (ctx) {
+		libusb_exit(ctx);
+		ctx = NULL;
+	}
 }
 
 struct stlink2 *stlink2_open(const char *serial)
