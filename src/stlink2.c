@@ -261,6 +261,7 @@ static void stlink2_dev_free(struct stlink2 **dev)
 	*dev = NULL;
 }
 
+/** @todo Move into stlink2_context */
 static libusb_context *ctx = NULL;
 
 void stlink2_init(void)
@@ -274,8 +275,10 @@ void stlink2_init(void)
 
 void stlink2_exit(void)
 {
-	libusb_exit(ctx);
-	ctx = NULL;
+	if (ctx) {
+		libusb_exit(ctx);
+		ctx = NULL;
+	}
 }
 
 struct stlink2 *stlink2_open(const char *serial)
@@ -283,8 +286,10 @@ struct stlink2 *stlink2_open(const char *serial)
 	bool found = false;
 	ssize_t cnt;
 	struct stlink2 *dev;
-
 	libusb_device **devs;
+
+	if (!ctx)
+		return NULL;
 
 	cnt = libusb_get_device_list(ctx, &devs);
 	if (cnt < 0)
