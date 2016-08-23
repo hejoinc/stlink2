@@ -286,6 +286,7 @@ struct stlink2 *stlink2_open(const char *serial)
 	bool found = false;
 	ssize_t cnt;
 	struct stlink2 *dev;
+
 	libusb_device **devs;
 
 	if (!ctx)
