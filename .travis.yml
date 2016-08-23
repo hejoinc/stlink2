@@ -2,19 +2,19 @@ language: c
 sudo: true
 dist: trusty
 
-addons:
-  apt:
-    packages:
-      - clang
+#addons:
+#  apt:
+#    packages:
+#      - clang
 
 compiler:
-  - clang
+#  - clang
   - gcc
-  - scan-build
+#  - scan-build
 
-matrix:
-  include:
-    - os: osx
-      compiler: clang
+#matrix:
+#  include:
+#    - os: osx
+#      compiler: clang
 
 script: ./.travis.sh
