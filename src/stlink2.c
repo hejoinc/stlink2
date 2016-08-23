@@ -270,6 +270,9 @@ void stlink2_init(void)
 	ret = libusb_init(&ctx);
 	if (ret < 0)
 		ctx = NULL;
+
+	if (ctx)
+		libusb_set_debug(ctx, LIBUSB_LOG_LEVEL_DEBUG);
 }
 
 void stlink2_exit(void)
@@ -285,6 +288,9 @@ struct stlink2 *stlink2_open(const char *serial)
 	struct stlink2 *dev;
 
 	libusb_device **devs;
+
+	if (ctx == NULL)
+		return NULL;
 
 	cnt = libusb_get_device_list(ctx, &devs);
 	if (cnt < 0)
