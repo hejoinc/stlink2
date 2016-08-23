@@ -25,21 +25,18 @@ static const char *stlink2_loglevel_str(enum stlink2_loglevel level)
 	return "";
 }
 
-int stlink2_log(enum stlink2_loglevel level, const char *file, unsigned int line, struct stlink2 *dev,
-		const char *format, ...)
+void stlink2_log(enum stlink2_loglevel level, const char *file, unsigned int line, struct stlink2 *dev,
+		 const char *format, ...)
 {
 	if (!dev->log.fp || level > dev->log.level)
-		return 0;
+		return;
 
-	int ret;
 	va_list args;
 
 	va_start(args, format);
-	ret = fprintf(dev->log.fp, "%s %s:%d : ", stlink2_loglevel_str(level), file, line);
-	ret = vfprintf(dev->log.fp, format, args);
+	fprintf(dev->log.fp, "%s %s:%d : ", stlink2_loglevel_str(level), file, line);
+	vfprintf(dev->log.fp, format, args);
 	va_end(args);
-
-	return ret;
 }
 
 void stlink2_log_set_file(struct stlink2 *dev, FILE *file)

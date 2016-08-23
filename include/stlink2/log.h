@@ -32,6 +32,6 @@ enum stlink2_loglevel {
 
 void stlink2_log_set_file(struct stlink2 *dev, FILE *file);
 void stlink2_log_set_level(struct stlink2 *dev, enum stlink2_loglevel level);
-int stlink2_log(enum stlink2_loglevel, const char *file, unsigned int line, struct stlink2 *dev, const char *format, ...);
+void stlink2_log(enum stlink2_loglevel, const char *file, unsigned int line, struct stlink2 *dev, const char *format, ...);
 
 #endif /* STLINK2_LOG_H_ */
