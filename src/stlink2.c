@@ -20,7 +20,7 @@ enum stlink2_mode stlink2_get_mode(struct stlink2 *dev)
 	memset(cmd, 0, sizeof(cmd));
 	cmd[0] = STLINK2_CMD_GET_CURRENT_MODE;
 
-	stlink2_usb_send_recv(dev, cmd, STLINK2_USB_CMD_SIZE, rep, 2);
+	stlink2_usb_send_recv(dev, cmd, STLINK2_USB_CMD_SIZE, rep, sizeof(rep));
 
 	switch (rep[0]) {
 	case STLINK2_MODE_DFU:
@@ -371,4 +371,25 @@ uint32_t stlink2_get_cpuid(stlink2_t dev)
 
 	stlink2_read_debug32(dev, STLINK2_CORTEXM_CPUID_REG, &cpuid);
 	return cpuid;
+}
+
+float stlink2_get_target_voltage(stlink2_t dev)
+{
+	uint8_t cmd[STLINK2_USB_CMD_SIZE];
+	uint8_t rep[8];
+	uint32_t adc_results[2];
+	float voltage = 0;
+
+	memset(cmd, 0, sizeof(cmd));
+	cmd[0] = STLINK2_CMD_GET_TARGET_VOLTAGE;
+
+	stlink2_usb_send_recv(dev, cmd, 1, rep, sizeof(rep));
+
+	adc_results[0] = stlink2_bconv_u32_le_to_h(rep);
+	adc_results[1] = stlink2_bconv_u32_le_to_h(rep + 4);
+
+	if (adc_results[0])
+		voltage = 2 * ((float)adc_results[1]) * (float)(1.2 / adc_results[0]);
+
+	return voltage;
 }

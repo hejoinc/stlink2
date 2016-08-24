@@ -49,6 +49,7 @@ void stlink2_close(stlink2_t *dev);
 const char *stlink2_get_name(stlink2_t dev);
 const char *stlink2_get_serial(stlink2_t dev);
 const char *stlink2_get_version(stlink2_t dev);
+float stlink2_get_target_voltage(stlink2_t dev);
 enum stlink2_mode stlink2_get_mode(struct stlink2 *dev);
 void stlink2_set_mode_swd(struct stlink2 *dev);
 enum stlink2_status stlink2_get_status(struct stlink2 *dev);

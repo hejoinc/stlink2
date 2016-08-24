@@ -9,13 +9,14 @@
 #include <stlink2.h>
 
 enum stlink2_cmd {
-	STLINK2_CMD_GET_VERSION      = 0xf1,
-	STLINK2_CMD_DEBUG            = 0xf2,
-	STLINK2_CMD_DFU              = 0xf3,
-	STLINK2_CMD_DFU_EXIT         = 0x07,
-	STLINK2_CMD_DFU_GET_VERSION  = 0x08,
-	STLINK2_CMD_GET_CURRENT_MODE = 0xf5,
-	STLINK2_CMD_RESET            = 0xf7
+	STLINK2_CMD_GET_VERSION        = 0xf1,
+	STLINK2_CMD_DEBUG              = 0xf2,
+	STLINK2_CMD_DFU                = 0xf3,
+	STLINK2_CMD_DFU_EXIT           = 0x07,
+	STLINK2_CMD_DFU_GET_VERSION    = 0x08,
+	STLINK2_CMD_GET_CURRENT_MODE   = 0xf5,
+	STLINK2_CMD_GET_TARGET_VOLTAGE = 0xf7,
+	STLINK2_CMD_RESET              = 0xf7 /** @todo verify...remove */
 };
 
 enum stlink2_cmd_debug {
