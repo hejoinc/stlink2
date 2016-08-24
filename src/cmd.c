@@ -4,6 +4,8 @@
  * license that can be found in the LICENSE file.
  */
 #include <stlink2/cmd.h>
+#include <stlink2/cortexm.h>
+#include <stlink2/utils/bconv.h>
 
 uint32_t stlink2_cmd_get_chipid(struct stlink2 *dev)
 {

@@ -4,6 +4,7 @@
  * license that can be found in the LICENSE file.
  */
 #include <stlink2.h>
+#include <stlink2/log.h>
 #include <stlink2/cmd.h>
 #include <stlink2/cortexm.h>
 #include <stlink2/utils/bconv.h>
@@ -95,7 +96,7 @@ static void stlink2_write_debug32(struct stlink2 *dev, uint32_t addr, uint32_t v
 	stlink2_usb_send_recv(dev, _cmd, sizeof(_cmd), _rep, sizeof(_rep));
 }
 
-void stlink2_get_version(struct stlink2 *dev)
+const char *stlink2_get_version(stlink2_t dev)
 {
 	uint8_t rep[6];
 
@@ -105,7 +106,12 @@ void stlink2_get_version(struct stlink2 *dev)
 	dev->fw.jtag   = ((rep[0] & 0x0f) << 2) | ((rep[1] & 0xc0) >> 6);
 	dev->fw.swim   = rep[1] & 0x3f;
 
-	printf("   firmware: V%uJ%uM%u\n", dev->fw.stlink, dev->fw.jtag, dev->fw.swim);
+	if (!dev->fw.version)
+		dev->fw.version = malloc(32);
+	if (dev->fw.version)
+		snprintf(dev->fw.version, 32, "V%uJ%uS%u", dev->fw.stlink, dev->fw.jtag, dev->fw.swim);
+
+	return dev->fw.version;
 }
 
 void stlink2_reset(stlink2_t dev)
@@ -121,13 +127,13 @@ enum stlink2_status stlink2_get_status(struct stlink2 *dev)
 
 	switch (rep[0]) {
 	case STLINK2_STATUS_CORE_RUNNING:
-		printf("     status: core running\n");
+		STLINK2_LOG_INFO(dev, "     status: core running\n");
 		break;
 	case STLINK2_STATUS_CORE_HALTED:
-		printf("     status: core halted\n");
+		STLINK2_LOG_INFO(dev, "     status: core halted\n");
 		break;
 	default:
-		printf("     status: unknown\n");
+		STLINK2_LOG_INFO(dev, "     status: unknown\n");
 		return STLINK2_STATUS_UNKNOWN;
 	}
 
@@ -252,6 +258,10 @@ static void stlink2_dev_free(struct stlink2 **dev)
 
 	free(_dev->serial);
 	_dev->serial = NULL;
+
+	free(_dev->fw.version);
+	_dev->fw.version = NULL;
+
 	if (_dev->usb.dev) {
 		libusb_close(_dev->usb.dev);
 		_dev->usb.dev = NULL;
@@ -310,7 +320,7 @@ struct stlink2 *stlink2_open(const char *serial)
 		}
 
 		/* Check if current stlink has matched serial */
-		if (strncmp(serial, dev->serial, strlen(dev->serial)) == 0) {
+		if (strcmp(serial, dev->serial) == 0) {
 			found = true;
 			break;
 		}
@@ -353,4 +363,12 @@ uint32_t stlink2_get_coreid(stlink2_t dev)
 uint32_t stlink2_get_chipid(stlink2_t dev)
 {
 	return stlink2_cmd_get_chipid(dev);
+}
+
+uint32_t stlink2_get_cpuid(stlink2_t dev)
+{
+	uint32_t cpuid = 0;
+
+	stlink2_read_debug32(dev, STLINK2_CORTEXM_CPUID_REG, &cpuid);
+	return cpuid;
 }

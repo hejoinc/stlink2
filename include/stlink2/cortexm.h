@@ -61,4 +61,26 @@
 /* Bits 3:1 - Reserved */
 #define STLINK2_CORTEXM_DEMCR_VC_CORERESET	(1 << 0)
 
+#define STLINK2_CORTEXM_CPUID_REG 0xE00ED00
+
+enum stlink2_cortexm_cpuid_partno {
+	STLINK2_CORTEXM_CPUID_PARTNO_M0      = 0xc20,
+	STLINK2_CORTEXM_CPUID_PARTNO_M0_PLUS = 0xc60,
+	STLINK2_CORTEXM_CPUID_PARTNO_M1      = 0xc21,
+	STLINK2_CORTEXM_CPUID_PARTNO_M3      = 0xc23,
+	STLINK2_CORTEXM_CPUID_PARTNO_M4      = 0xc24,
+	STLINK2_CORTEXM_CPUID_PARTNO_M7      = 0xc27
+};
+
+enum stlink2_cortexm_cpuid_arch {
+	STLINK2_CORTEXM_CPUID_ARCH_V6M = 0xc,
+	STLINK2_CORTEXM_CPUID_ARCH_V7M = 0xf
+};
+
+static inline enum stlink2_cortexm_cpuid_partno stlink2_cortexm_cpuid_get_partno(uint32_t cpuid) {
+	return (cpuid >> 4) & 0xfff;
+}
+
+enum stlink2_cortexm_cpuid_arch   stlink2_cortexm_cpuid_get_arch(uint32_t cpuid);
+
 #endif /* STLINK2_CORTEXM_H_ */

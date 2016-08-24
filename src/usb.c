@@ -29,6 +29,41 @@ static char *stlink2_strdup(const char *s)
 	return p;
 }
 
+static bool stlink2_usb_claim(struct stlink2 *dev)
+{
+	int ret;
+	int config;
+
+	ret = libusb_kernel_driver_active(dev->usb.dev, 0);
+	if (ret) {
+		ret = libusb_detach_kernel_driver(dev->usb.dev, 0);
+		if (ret) {
+			STLINK2_LOG_ERROR(dev, "libusb_detach_kernel_driver failed\n");
+			return false;
+		}
+	}
+
+	ret = libusb_get_configuration(dev->usb.dev, &config);
+	if (ret) {
+		STLINK2_LOG_ERROR(dev, "libusb_get_configuration failed\n");
+		return false;
+	}
+
+	ret = libusb_set_configuration(dev->usb.dev, 1);
+	if (ret) {
+		STLINK2_LOG_ERROR(dev, "libusb_set_configuration failed\n");
+		return false;
+	}
+
+	ret = libusb_claim_interface(dev->usb.dev, 0);
+	if (ret) {
+		STLINK2_LOG_ERROR(dev, "libusb_claim_interface failed\n");
+		return false;
+	}
+
+	return true;
+}
+
 bool stlink2_usb_probe_dev(libusb_device *dev, struct stlink2 *st)
 {
 	int ret = 0;
@@ -117,39 +152,6 @@ char *stlink2_usb_read_serial(libusb_device_handle *handle, struct libusb_device
 		return stlink2_usb_read_binary_serial(serial, ret);
 
 	return stlink2_strdup(serial);
-}
-
-void stlink2_usb_claim(struct stlink2 *st)
-{
-	int ret;
-	int config;
-
-	ret = libusb_kernel_driver_active(st->usb.dev, 0);
-	if (ret) {
-		ret = libusb_detach_kernel_driver(st->usb.dev, 0);
-		if (ret) {
-			printf("Unable to detach\n");
-			return;
-		}
-	}
-
-	ret = libusb_get_configuration(st->usb.dev, &config);
-	if (ret) {
-		printf("Unable to get configuration\n");
-		return;
-	}
-
-	ret = libusb_set_configuration(st->usb.dev, 1);
-	if (ret) {
-		printf("Unable to set configuration\n");
-		return;
-	}
-
-	ret = libusb_claim_interface(st->usb.dev, 0);
-	if (ret) {
-		printf("unable to claim\n");
-		return;
-	}
 }
 
 void stlink2_usb_config_endpoints(struct stlink2 *dev)

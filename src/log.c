@@ -44,7 +44,7 @@ void stlink2_log_set_file(struct stlink2 *dev, FILE *file)
 	dev->log.fp = file;
 }
 
-void stlink2_log_set_level(struct stlink2 *dev, enum stlink2_loglevel level)
+void stlink2_log_set_level(stlink2_t dev, enum stlink2_loglevel level)
 {
 	dev->log.level = level;
 }

@@ -48,8 +48,13 @@ void stlink2_close(stlink2_t *dev);
 
 const char *stlink2_get_name(stlink2_t dev);
 const char *stlink2_get_serial(stlink2_t dev);
+const char *stlink2_get_version(stlink2_t dev);
+enum stlink2_mode stlink2_get_mode(struct stlink2 *dev);
+void stlink2_set_mode_swd(struct stlink2 *dev);
+enum stlink2_status stlink2_get_status(struct stlink2 *dev);
 uint32_t stlink2_get_coreid(stlink2_t dev);
 uint32_t stlink2_get_chipid(stlink2_t dev);
+uint32_t stlink2_get_cpuid(stlink2_t dev);
 
 void stlink2_read_reg(stlink2_t dev, uint8_t idx, uint32_t *val);
 
@@ -66,6 +71,7 @@ struct stlink2 {
 		uint8_t stlink;
 		uint8_t jtag;
 		uint8_t swim;
+		char *version;
 	} fw;
 	struct {
 		enum stlink2_loglevel level;
