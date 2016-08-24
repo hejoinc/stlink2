@@ -49,6 +49,7 @@ void stlink2_log(enum stlink2_loglevel level, const char *file, unsigned int lin
 		return;
 
 	va_list args;
+
 	file = stlink2_log_file_strip_prefix(file, STLINK2_BUILD_SOURCE_DIR);
 
 	va_start(args, format);
