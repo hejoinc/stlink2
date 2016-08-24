@@ -53,6 +53,7 @@ float stlink2_get_target_voltage(stlink2_t dev);
 enum stlink2_mode stlink2_get_mode(struct stlink2 *dev);
 void stlink2_set_mode_swd(struct stlink2 *dev);
 enum stlink2_status stlink2_get_status(struct stlink2 *dev);
+void stlink2_mcu_halt(stlink2_t dev);
 uint32_t stlink2_get_coreid(stlink2_t dev);
 uint32_t stlink2_get_chipid(stlink2_t dev);
 uint32_t stlink2_get_cpuid(stlink2_t dev);

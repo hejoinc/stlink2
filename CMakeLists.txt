@@ -74,6 +74,11 @@ if(MSVC)
 #    SET (CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO}" CACHE STRING "MSVC CXX Release MT flags " FORCE)
 endif()
 
+configure_file (
+	"${CMAKE_SOURCE_DIR}/include/stlink2/build.h.in"
+	"${CMAKE_BINARY_DIR}/include/stlink2/build.h"
+)
+
 set(SRC
 	src/stlink2.c
 	src/cmd.c
@@ -86,7 +91,7 @@ set(SRC
 	src/utils/hexstr.c
 	src/utils/msleep.c
 )
-include_directories(include)
+include_directories(include ${CMAKE_BINARY_DIR}/include)
 include_directories(SYSTEM ${LIBUSB_INCLUDE_DIR})
 
 set(STLINK2_LIBRARY_STATIC ${PROJECT_NAME}-static)

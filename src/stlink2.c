@@ -24,10 +24,13 @@ enum stlink2_mode stlink2_get_mode(struct stlink2 *dev)
 
 	switch (rep[0]) {
 	case STLINK2_MODE_DFU:
+		STLINK2_LOG_DEBUG(dev, "stlink2_get_mode: STLINK2_MODE_DFU\n");
 		break;
 	case STLINK2_MODE_MASS:
+		STLINK2_LOG_DEBUG(dev, "stlink2_get_mode: STLINK2_MODE_MASS\n");
 		break;
 	case STLINK2_MODE_DEBUG:
+		STLINK2_LOG_DEBUG(dev, "stlink2_get_mode: STLINK2_MODE_DEBUG\n");
 		break;
 	default:
 		return STLINK2_MODE_UNKNOWN;
@@ -144,9 +147,10 @@ void stlink2_set_mode_swd(struct stlink2 *dev)
 {
 	stlink2_set_exitmode_dfu(dev);
 	stlink2_debug_command(dev, STLINK2_CMD_DEBUG_ENTER_MODE, STLINK2_CMD_DEBUG_ENTER_SWD, NULL, 0);
+	stlink2_get_mode(dev);
 }
 
-void stlink2_mcu_halt(struct stlink2 *dev)
+void stlink2_mcu_halt(stlink2_t dev)
 {
 	uint8_t rep[2];
 

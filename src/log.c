@@ -4,6 +4,7 @@
  * license that can be found in the LICENSE file.
  */
 #include <stlink2.h>
+#include <stlink2/build.h>
 
 static const char *stlink2_loglevel_str(enum stlink2_loglevel level)
 {
@@ -25,6 +26,22 @@ static const char *stlink2_loglevel_str(enum stlink2_loglevel level)
 	return "";
 }
 
+static const char *stlink2_log_file_strip_prefix(const char *file, const char *prefix)
+{
+	const char *_file = file;
+
+	for (size_t n = 0; ; n++) {
+		if (file[n] == 0 || prefix[n] == 0) {
+			if (file[n] != 0)
+				n++;
+			_file = &file[n];
+			break;
+		}
+	}
+
+	return _file;
+}
+
 void stlink2_log(enum stlink2_loglevel level, const char *file, unsigned int line, struct stlink2 *dev,
 		 const char *format, ...)
 {
@@ -32,6 +49,7 @@ void stlink2_log(enum stlink2_loglevel level, const char *file, unsigned int lin
 		return;
 
 	va_list args;
+	file = stlink2_log_file_strip_prefix(file, STLINK2_BUILD_SOURCE_DIR);
 
 	va_start(args, format);
 	fprintf(dev->log.fp, "%s %s:%d : ", stlink2_loglevel_str(level), file, line);

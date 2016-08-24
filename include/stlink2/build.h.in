@@ -1,0 +1,14 @@
+/*
+ * Copyright 2016 Jerry Jacobs. All rights reserved.
+ * Use of this source code is governed by the MIT
+ * license that can be found in the LICENSE file.
+ */
+#ifndef STLINK2_BUILD_H_
+#define STLINK2_BUILD_H_
+
+#define STLINK2_BUILD_SOURCE_DIR    "@CMAKE_SOURCE_DIR@/src"
+#define STLINK2_BUILD_VERSION_MAJOR @PROJECT_VERSION_MAJOR@
+#define STLINK2_BUILD_VERSION_MINOR @PROJECT_VERSION_MINOR@
+#define STLINK2_BUILD_VERSION_PATCH @PROJECT_VERSION_PATCH@
+
+#endif /* STLINK2_BUILD_H_ */
