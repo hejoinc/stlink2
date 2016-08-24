@@ -1,5 +1,12 @@
+/*
+ * Copyright 2016 Jerry Jacobs. All rights reserved.
+ * Use of this source code is governed by the MIT
+ * license that can be found in the LICENSE file.
+ */
 #ifndef STLINK2_CORTEXM_H_
 #define STLINK2_CORTEXM_H_
+
+#include <stdint.h>
 
 /* Private peripheral bus base address */
 #define STLINK2_CORTEXM_PPB_BASE	0xE0000000
@@ -61,7 +68,7 @@
 /* Bits 3:1 - Reserved */
 #define STLINK2_CORTEXM_DEMCR_VC_CORERESET	(1 << 0)
 
-#define STLINK2_CORTEXM_CPUID_REG 0xE00ED00
+#define STLINK2_CORTEXM_CPUID_REG 0xE000ED00
 
 enum stlink2_cortexm_cpuid_partno {
 	STLINK2_CORTEXM_CPUID_PARTNO_M0      = 0xc20,
@@ -77,10 +84,9 @@ enum stlink2_cortexm_cpuid_arch {
 	STLINK2_CORTEXM_CPUID_ARCH_V7M = 0xf
 };
 
-static inline enum stlink2_cortexm_cpuid_partno stlink2_cortexm_cpuid_get_partno(uint32_t cpuid) {
-	return (cpuid >> 4) & 0xfff;
-}
+enum stlink2_cortexm_cpuid_partno stlink2_cortexm_cpuid_get_partno(uint32_t cpuid);
+const char *stlink2_cortexm_cpuid_get_partno_str(uint32_t cpuid);
 
-enum stlink2_cortexm_cpuid_arch   stlink2_cortexm_cpuid_get_arch(uint32_t cpuid);
+enum stlink2_cortexm_cpuid_arch stlink2_cortexm_cpuid_get_arch(uint32_t cpuid);
 
 #endif /* STLINK2_CORTEXM_H_ */

@@ -114,11 +114,6 @@ const char *stlink2_get_version(stlink2_t dev)
 	return dev->fw.version;
 }
 
-void stlink2_reset(stlink2_t dev)
-{
-	stlink2_command(dev, STLINK2_CMD_RESET, 0, NULL, 0);
-}
-
 enum stlink2_status stlink2_get_status(struct stlink2 *dev)
 {
 	uint8_t rep[2];
