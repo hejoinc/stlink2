@@ -71,22 +71,32 @@ bool stlink2_usb_probe_dev(libusb_device *dev, struct stlink2 *st)
 	libusb_device_handle *devh;
 
 	ret = libusb_get_device_descriptor(dev, &desc);
-	if (ret < 0)
+	if (ret < 0) {
+		STLINK2_LOG(ERROR, st, "libusb_get_device_descriptor failed\n");
 		return false;
+	}
 
 	if (desc.idProduct != STLINK2_USB_PID_V2 &&
 	    desc.idProduct != STLINK2_USB_PID_V2_1)
 		return false;
 
 	ret = libusb_open(dev, &devh);
-	if (ret < 0)
+	if (ret < 0) {
+		STLINK2_LOG(ERROR, st, "libusb_open failed\n");
 		return false;
+	}
 
-	st->usb.dev   = devh;
 	stlink2_log_set_file(st, stdout);
 	stlink2_log_set_level(st, STLINK2_LOGLEVEL_INFO);
+
+	st->usb.dev   = devh;
 	st->usb.pid   = desc.idProduct;
 	st->serial    = stlink2_usb_read_serial(st->usb.dev, &desc);
+	if (!st->serial) {
+		STLINK2_LOG(ERROR, st, "stlink2_usb_read_serial failed\n");
+		libusb_close(devh);
+		return false;
+	}
 
 	stlink2_usb_claim(st);
 	stlink2_usb_config_endpoints(st);
