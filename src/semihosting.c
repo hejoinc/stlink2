@@ -48,8 +48,10 @@ void stlink2_semihosting_op_sys_write0(struct stlink2 *dev)
 			}
 
 			rc = fwrite(&((char *)&data)[n], 1, 1, stdout);
-			if (rc < 0)
-				printf("error in write\n");
+			if (rc < 0) {
+				data = 0;
+				break;
+			}
 		}
 		addr += 4;
 	} while (data != 0);
@@ -64,6 +66,7 @@ bool stlink2_semihosting(struct stlink2 *dev)
 	uint32_t r0;
 
 	stlink2_read_reg(dev, 15, &pc);
+	STLINK2_LOG(DEBUG, dev, "pc: 0x%08x\n", pc);
 	stlink2_read_debug32(dev, pc, &data);
 
 	if (((data & 0xffff0000) >> 16) == 0xbeab) {
@@ -78,7 +81,7 @@ bool stlink2_semihosting(struct stlink2 *dev)
 		case STLINK2_SEMIHOSTING_OP_SYS_WRITE:
 			break;
 		case STLINK2_SEMIHOSTING_OP_SYS_FLEN:
-			printf("SYS_FLEN\n");
+			STLINK2_LOG(DEBUG, dev, "SYS_FLEN\n");
 			break;
 		case STLINK2_SEMIHOSTING_EXCEPTION:
 			stlink2_read_reg(dev, 1, &data);

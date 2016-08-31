@@ -81,7 +81,6 @@ configure_file (
 
 set(SRC
 	src/stlink2.c
-	src/cmd.c
 	src/cortexm.c
 	src/log.c
 	src/usb.c

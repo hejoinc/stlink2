@@ -367,7 +367,11 @@ uint32_t stlink2_get_coreid(stlink2_t dev)
 
 uint32_t stlink2_get_chipid(stlink2_t dev)
 {
-	return stlink2_cmd_get_chipid(dev);
+	if (dev->mcu.chipid)
+		return dev->mcu.chipid;
+	/** @todo move reg into macro */
+	stlink2_read_debug32(dev, 0xE0042000, &dev->mcu.chipid);
+	return dev->mcu.chipid;
 }
 
 uint32_t stlink2_get_cpuid(stlink2_t dev)
@@ -430,4 +434,11 @@ float stlink2_get_target_voltage(stlink2_t dev)
 		voltage = 2 * ((float)adc_results[1]) * (float)(1.2 / adc_results[0]);
 
 	return voltage;
+}
+
+void stlink2_flush(stlink2_t dev)
+{
+	dev->mcu.coreid = 0;
+	dev->mcu.cpuid  = 0;
+	free(dev->mcu.unique_id_str);
 }

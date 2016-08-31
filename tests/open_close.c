@@ -10,7 +10,7 @@ static void test_open_close(const char *serial)
 	if (dev) {
 		uint32_t cpuid;
 
-		stlink2_log_set_level(dev, STLINK2_LOGLEVEL_TRACE);
+		stlink2_log_set_level(dev, STLINK2_LOGLEVEL_DEBUG);
 
 		printf("  serial: %s\n",    stlink2_get_serial(dev));
 		printf("    name: %s\n",    stlink2_get_name(dev));
@@ -26,9 +26,19 @@ static void test_open_close(const char *serial)
 		printf("   cpuid: %08x\n",  cpuid);
 		printf("     partno: %03x (%s)\n", stlink2_cortexm_cpuid_get_partno(cpuid), stlink2_cortexm_cpuid_get_partno_str(cpuid));
 		printf("  coreid: %08x\n",  stlink2_get_coreid(dev));
+		printf("  chipid: %08x\n",  stlink2_get_chipid(dev));
 		printf("   devid: 0x%03x\n", stlink2_get_devid(dev));
 		printf("  flash size: %d\n", stlink2_get_flash_size(dev));
 		printf("  unique id: %s\n", stlink2_get_unique_id(dev));
+
+#ifdef SEMIHOSTING
+		while (true) {
+			if (stlink2_get_status(dev) == STLINK2_STATUS_CORE_HALTED)
+				stlink2_mcu_run(dev);
+			stlink2_semihosting(dev);
+			stlink2_msleep(1);
+		}
+#endif
 	}
 	stlink2_close(&dev);
 }

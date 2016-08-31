@@ -78,6 +78,7 @@ struct stlink2 {
 	} log;
 	struct {
 		uint32_t coreid;
+		uint32_t chipid;
 		uint32_t cpuid;
 		uint32_t flash_size;
 		uint8_t unique_id[12];

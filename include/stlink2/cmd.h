@@ -44,6 +44,4 @@ enum stlink2_cmd_debug {
 	STLINK2_CMD_SWD_SET_FREQ         = 0x43
 };
 
-uint32_t stlink2_cmd_get_chipid(struct stlink2 *dev);
-
 #endif /* STLINK2_CMD_H_ */
