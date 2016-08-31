@@ -8,7 +8,7 @@ STMicroelectronics STlinkv2 programmer library and tools
 # Differences
 
 The stlink2 project is different from the already existing [OpenOCD](https://github.com/ntfreak/openocd),
- [texane/stlink](https://github.com/texane/stlink) and [blacksphere/blackmagic](https://github.com/blacksphere/blackmagic).
+ [texane/stlink](https://github.com/texane/stlink) [https://github.com/pavelrevak/pystlink](pavelrevak/pystlink), [avrhack/stlink-trace](https://github.com/avrhack/stlink-trace), [fpoussin/QStlink2](https://github.com/fpoussin/QStlink2) and [blacksphere/blackmagic](https://github.com/blacksphere/blackmagic).
 
 It is a complete clean rewrite to have full programmer control as a library with a clean defined API. As this
  can be integrated into bigger application which control multiple programmers in parallel. Written into a standalone
