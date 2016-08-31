@@ -57,6 +57,8 @@ void stlink2_mcu_halt(stlink2_t dev);
 uint32_t stlink2_get_coreid(stlink2_t dev);
 uint32_t stlink2_get_chipid(stlink2_t dev);
 uint32_t stlink2_get_cpuid(stlink2_t dev);
+uint16_t stlink2_get_devid(stlink2_t dev);
+uint32_t stlink2_get_flash_size(stlink2_t dev);
 
 void stlink2_read_reg(stlink2_t dev, uint8_t idx, uint32_t *val);
 

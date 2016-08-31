@@ -26,6 +26,8 @@ static void test_open_close(const char *serial)
 		printf("   cpuid: %08x\n",  cpuid);
 		printf("     partno: %03x (%s)\n", stlink2_cortexm_cpuid_get_partno(cpuid), stlink2_cortexm_cpuid_get_partno_str(cpuid));
 		printf("  coreid: %08x\n",  stlink2_get_coreid(dev));
+		printf("   devid: 0x%03x\n", stlink2_get_devid(dev));
+		printf("  flash size: %d\n", stlink2_get_flash_size(dev));
 	}
 	stlink2_close(&dev);
 }
@@ -35,8 +37,8 @@ int main(void)
 	stlink2_init();
 
 	test_open_close(NULL);
-	test_open_close("503f7206506752553329033f");
-	test_open_close("066DFF485550755187254525");
+	//test_open_close("503f7206506752553329033f");
+	//test_open_close("066DFF485550755187254525");
 
 	stlink2_exit();
 }

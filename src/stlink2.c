@@ -372,6 +372,20 @@ uint32_t stlink2_get_cpuid(stlink2_t dev)
 	return cpuid;
 }
 
+uint16_t stlink2_get_devid(stlink2_t dev)
+{
+	return stlink2_get_chipid(dev) & 0xfff;
+}
+
+uint32_t stlink2_get_flash_size(stlink2_t dev)
+{
+	uint32_t size = 0;
+	uint32_t reg  = 0x1ff800cc; /** @todo hardcoded for devid 0x427 for now */
+
+	stlink2_read_debug32(dev, reg, &size);
+	return size;
+}
+
 float stlink2_get_target_voltage(stlink2_t dev)
 {
 	uint8_t cmd[STLINK2_USB_CMD_SIZE];
