@@ -38,26 +38,26 @@ static bool stlink2_usb_claim(struct stlink2 *dev)
 	if (ret) {
 		ret = libusb_detach_kernel_driver(dev->usb.dev, 0);
 		if (ret) {
-			STLINK2_LOG_ERROR(dev, "libusb_detach_kernel_driver failed\n");
+			STLINK2_LOG(ERROR, dev, "libusb_detach_kernel_driver failed\n");
 			return false;
 		}
 	}
 
 	ret = libusb_get_configuration(dev->usb.dev, &config);
 	if (ret) {
-		STLINK2_LOG_ERROR(dev, "libusb_get_configuration failed\n");
+		STLINK2_LOG(ERROR, dev, "libusb_get_configuration failed\n");
 		return false;
 	}
 
 	ret = libusb_set_configuration(dev->usb.dev, 1);
 	if (ret) {
-		STLINK2_LOG_ERROR(dev, "libusb_set_configuration failed\n");
+		STLINK2_LOG(ERROR, dev, "libusb_set_configuration failed\n");
 		return false;
 	}
 
 	ret = libusb_claim_interface(dev->usb.dev, 0);
 	if (ret) {
-		STLINK2_LOG_ERROR(dev, "libusb_claim_interface failed\n");
+		STLINK2_LOG(ERROR, dev, "libusb_claim_interface failed\n");
 		return false;
 	}
 
@@ -180,9 +180,10 @@ ssize_t stlink2_usb_send_recv(struct stlink2 *dev,
 		return 0;
 	}
 
-	STLINK2_LOG_TRACE(dev, "req: ");
+	STLINK2_LOG(TRACE, dev, "USB > ");
 	for (size_t n = 0; n < txsize; n++)
-		STLINK2_LOG_TRACE(dev, "%02x ", txbuf[n]);
+		STLINK2_LOG_WRITE(TRACE, dev, "%02x ", txbuf[n]);
+	STLINK2_LOG_WRITE(TRACE, dev, "\n");
 
 	if (!rxbuf || !rxsize)
 		return 0;
@@ -197,9 +198,10 @@ ssize_t stlink2_usb_send_recv(struct stlink2 *dev,
 		return 0;
 	}
 
-	STLINK2_LOG_TRACE(dev, "rep: ");
+	STLINK2_LOG(TRACE, dev, "USB < ");
 	for (size_t n = 0; n < rxsize; n++)
-		STLINK2_LOG_TRACE(dev, "%02x ", rxbuf[n]);
+		STLINK2_LOG_WRITE(TRACE, dev, "%02x ", rxbuf[n]);
+	STLINK2_LOG_WRITE(TRACE, dev, "\n");
 
 	return 0;
 }

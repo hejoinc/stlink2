@@ -10,7 +10,7 @@ static void test_open_close(const char *serial)
 	if (dev) {
 		uint32_t cpuid;
 
-		stlink2_log_set_level(dev, STLINK2_LOGLEVEL_DEBUG);
+		stlink2_log_set_level(dev, STLINK2_LOGLEVEL_TRACE);
 
 		printf("  serial: %s\n",    stlink2_get_serial(dev));
 		printf("    name: %s\n",    stlink2_get_name(dev));
@@ -28,6 +28,7 @@ static void test_open_close(const char *serial)
 		printf("  coreid: %08x\n",  stlink2_get_coreid(dev));
 		printf("   devid: 0x%03x\n", stlink2_get_devid(dev));
 		printf("  flash size: %d\n", stlink2_get_flash_size(dev));
+		printf("  unique id: %s\n", stlink2_get_unique_id(dev));
 	}
 	stlink2_close(&dev);
 }

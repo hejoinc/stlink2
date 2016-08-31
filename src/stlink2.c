@@ -24,13 +24,13 @@ enum stlink2_mode stlink2_get_mode(struct stlink2 *dev)
 
 	switch (rep[0]) {
 	case STLINK2_MODE_DFU:
-		STLINK2_LOG_DEBUG(dev, "stlink2_get_mode: STLINK2_MODE_DFU\n");
+		STLINK2_LOG(DEBUG, dev, "stlink2_get_mode: STLINK2_MODE_DFU\n");
 		break;
 	case STLINK2_MODE_MASS:
-		STLINK2_LOG_DEBUG(dev, "stlink2_get_mode: STLINK2_MODE_MASS\n");
+		STLINK2_LOG(DEBUG, dev, "stlink2_get_mode: STLINK2_MODE_MASS\n");
 		break;
 	case STLINK2_MODE_DEBUG:
-		STLINK2_LOG_DEBUG(dev, "stlink2_get_mode: STLINK2_MODE_DEBUG\n");
+		STLINK2_LOG(DEBUG, dev, "stlink2_get_mode: STLINK2_MODE_DEBUG\n");
 		break;
 	default:
 		return STLINK2_MODE_UNKNOWN;
@@ -109,6 +109,7 @@ const char *stlink2_get_version(stlink2_t dev)
 	dev->fw.jtag   = ((rep[0] & 0x0f) << 2) | ((rep[1] & 0xc0) >> 6);
 	dev->fw.swim   = rep[1] & 0x3f;
 
+	/** @todo there should be a better way to malloc */
 	if (!dev->fw.version)
 		dev->fw.version = malloc(32);
 	if (dev->fw.version)
@@ -125,13 +126,13 @@ enum stlink2_status stlink2_get_status(struct stlink2 *dev)
 
 	switch (rep[0]) {
 	case STLINK2_STATUS_CORE_RUNNING:
-		STLINK2_LOG_INFO(dev, "     status: core running\n");
+		STLINK2_LOG(INFO, dev, "     status: core running\n");
 		break;
 	case STLINK2_STATUS_CORE_HALTED:
-		STLINK2_LOG_INFO(dev, "     status: core halted\n");
+		STLINK2_LOG(INFO, dev, "     status: core halted\n");
 		break;
 	default:
-		STLINK2_LOG_INFO(dev, "     status: unknown\n");
+		STLINK2_LOG(INFO, dev, "     status: unknown\n");
 		return STLINK2_STATUS_UNKNOWN;
 	}
 
@@ -243,7 +244,7 @@ void stlink2_halt_resume(stlink2_t dev)
 
 static struct stlink2 *stlink2_dev_alloc(void)
 {
-	return calloc(sizeof(struct stlink2), 1);
+	return calloc(1, sizeof(struct stlink2));
 }
 
 static void stlink2_dev_free(struct stlink2 **dev)
@@ -312,7 +313,7 @@ struct stlink2 *stlink2_open(const char *serial)
 		if (!stlink2_usb_probe_dev(devs[n], dev))
 			continue;
 
-		/* When no specific serial is search we are done here */
+		/* When no specific serial is searched then we are done */
 		if (!serial) {
 			found = true;
 			break;
@@ -353,10 +354,15 @@ const char *stlink2_get_name(stlink2_t dev)
 
 uint32_t stlink2_get_coreid(stlink2_t dev)
 {
+	if (dev->mcu.coreid)
+		return dev->mcu.coreid;
+
 	uint8_t rep[4];
 
 	stlink2_debug_command(dev, STLINK2_CMD_DEBUG_READ_COREID, 0, rep, sizeof(rep));
-	return stlink2_bconv_u32_le_to_h(rep);
+	dev->mcu.coreid = stlink2_bconv_u32_le_to_h(rep);
+
+	return dev->mcu.coreid;
 }
 
 uint32_t stlink2_get_chipid(stlink2_t dev)
@@ -366,10 +372,11 @@ uint32_t stlink2_get_chipid(stlink2_t dev)
 
 uint32_t stlink2_get_cpuid(stlink2_t dev)
 {
-	uint32_t cpuid = 0;
+	if (dev->mcu.cpuid)
+		return dev->mcu.cpuid;
 
-	stlink2_read_debug32(dev, STLINK2_CORTEXM_CPUID_REG, &cpuid);
-	return cpuid;
+	stlink2_read_debug32(dev, STLINK2_CORTEXM_CPUID_REG, &dev->mcu.cpuid);
+	return dev->mcu.cpuid;
 }
 
 uint16_t stlink2_get_devid(stlink2_t dev)
@@ -379,11 +386,29 @@ uint16_t stlink2_get_devid(stlink2_t dev)
 
 uint32_t stlink2_get_flash_size(stlink2_t dev)
 {
-	uint32_t size = 0;
-	uint32_t reg  = 0x1ff800cc; /** @todo hardcoded for devid 0x427 for now */
+	if (dev->mcu.flash_size)
+		return dev->mcu.flash_size;
 
-	stlink2_read_debug32(dev, reg, &size);
-	return size;
+	uint32_t reg = 0x1ff800cc; /** @todo hardcoded for devid 0x427 for now */
+
+	stlink2_read_debug32(dev, reg, &dev->mcu.flash_size);
+	return dev->mcu.flash_size;
+}
+
+/** @todo implement 96-bit mem-read from 0x1FF800D0 */
+const char *stlink2_get_unique_id(stlink2_t dev)
+{
+	if (dev->mcu.unique_id_str)
+		return dev->mcu.unique_id_str;
+
+	dev->mcu.unique_id_str = malloc(32);
+	if (!dev->mcu.unique_id_str)
+		return NULL;
+
+	memset(dev->mcu.unique_id_str, '0', 24);
+	dev->mcu.unique_id_str[24] = 0;
+
+	return dev->mcu.unique_id_str;
 }
 
 float stlink2_get_target_voltage(stlink2_t dev)

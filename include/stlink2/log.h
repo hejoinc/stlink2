@@ -19,16 +19,10 @@ enum stlink2_loglevel {
 	STLINK2_LOGLEVEL_TRACE
 };
 
-#define STLINK2_LOG_ERROR(dev, format, ...) \
-	stlink2_log(STLINK2_LOGLEVEL_ERROR, __FILE__, __LINE__, dev, format, ##__VA_ARGS__)
-#define STLINK2_LOG_WARN(dev, format, ...) \
-	stlink2_log(STLINK2_LOGLEVEL_WARN, __FILE__, __LINE__, dev, format, ##__VA_ARGS__)
-#define STLINK2_LOG_INFO(dev, format, ...) \
-	stlink2_log(STLINK2_LOGLEVEL_INFO, __FILE__, __LINE__, dev, format, ##__VA_ARGS__)
-#define STLINK2_LOG_DEBUG(dev, format, ...) \
-	stlink2_log(STLINK2_LOGLEVEL_DEBUG, __FILE__, __LINE__, dev, format, ##__VA_ARGS__)
-#define STLINK2_LOG_TRACE(dev, format, ...) \
-	stlink2_log(STLINK2_LOGLEVEL_TRACE, __FILE__, __LINE__, dev, format, ##__VA_ARGS__)
+#define STLINK2_LOG(level, dev, format, ...) \
+	stlink2_log(STLINK2_LOGLEVEL_##level, __FILE__, __LINE__, dev, format, ##__VA_ARGS__)
+#define STLINK2_LOG_WRITE(level, dev, format, ...) \
+	stlink2_log(STLINK2_LOGLEVEL_##level, NULL, 0, dev, format, ##__VA_ARGS__)
 
 void stlink2_log_set_file(struct stlink2 *dev, FILE *file);
 void stlink2_log_set_level(stlink2_t dev, enum stlink2_loglevel level);

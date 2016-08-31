@@ -59,6 +59,7 @@ uint32_t stlink2_get_chipid(stlink2_t dev);
 uint32_t stlink2_get_cpuid(stlink2_t dev);
 uint16_t stlink2_get_devid(stlink2_t dev);
 uint32_t stlink2_get_flash_size(stlink2_t dev);
+const char *stlink2_get_unique_id(stlink2_t dev);
 
 void stlink2_read_reg(stlink2_t dev, uint8_t idx, uint32_t *val);
 
@@ -72,15 +73,22 @@ struct stlink2 {
 	char *serial;
 	const char *name;
 	struct {
+		enum stlink2_loglevel level;
+		FILE *fp;
+	} log;
+	struct {
+		uint32_t coreid;
+		uint32_t cpuid;
+		uint32_t flash_size;
+		uint8_t unique_id[12];
+		char *unique_id_str;
+	} mcu;
+	struct {
 		uint8_t stlink;
 		uint8_t jtag;
 		uint8_t swim;
 		char *version;
 	} fw;
-	struct {
-		enum stlink2_loglevel level;
-		FILE *fp;
-	} log;
 	struct {
 		uint16_t pid;
 		libusb_device_handle *dev;
