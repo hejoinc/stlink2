@@ -8,12 +8,7 @@ endif ()
 
 project(stlink2 C)
 
-#
-# The path for our own CMake modules
-#
-set ( CMAKE_MODULE_PATH
-	${PROJECT_SOURCE_DIR}/cmake
-)
+set (CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 if(WIN32)
 	find_package(7Zip REQUIRED)
@@ -92,6 +87,14 @@ set(SRC
 )
 include_directories(include ${CMAKE_BINARY_DIR}/include)
 include_directories(SYSTEM ${LIBUSB_INCLUDE_DIR})
+
+# libusb check
+set(CMAKE_REQUIRED_INCLUDES  ${LIBUSB_INCLUDE_DIR})
+set(CMAKE_REQUIRED_LIBRARIES ${LIBUSB_LIBRARY})
+check_function_exists("libusb_strerror" LIBUSB_HAVE_STRERROR)
+if (LIBUSB_HAVE_STRERROR)
+	add_definitions("-DLIBUSB_HAVE_STERROR")
+endif ()
 
 set(STLINK2_LIBRARY_STATIC ${PROJECT_NAME}-static)
 set(STLINK2_LIBRARY_SHARED ${PROJECT_NAME}-shared)
