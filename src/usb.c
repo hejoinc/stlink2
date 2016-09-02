@@ -37,27 +37,34 @@ static bool stlink2_usb_claim(struct stlink2 *dev)
 	ret = libusb_kernel_driver_active(dev->usb.dev, 0);
 	if (ret) {
 		ret = libusb_detach_kernel_driver(dev->usb.dev, 0);
-		if (ret) {
-			STLINK2_LOG(ERROR, dev, "libusb_detach_kernel_driver failed\n");
+		if (ret == LIBUSB_ERROR_NOT_SUPPORTED) {
+			STLINK2_LOG(TRACE, dev, "libusb_detach_kernel_driver:\n", libusb_strerror(ret));
+			STLINK2_LOG(TRACE, dev, "\t%s\n", libusb_strerror(ret));
+		} else if (ret) {
+			STLINK2_LOG(ERROR, dev, "libusb_detach_kernel_driver failed:\n", libusb_strerror(ret));
+			STLINK2_LOG(ERROR, dev, "\t%s\n", libusb_strerror(ret));
 			return false;
 		}
 	}
 
 	ret = libusb_get_configuration(dev->usb.dev, &config);
 	if (ret) {
-		STLINK2_LOG(ERROR, dev, "libusb_get_configuration failed\n");
+		STLINK2_LOG(ERROR, dev, "libusb_get_configuration failed:\n");
+		STLINK2_LOG(ERROR, dev, "\t%s\n", libusb_strerror(ret));
 		return false;
 	}
 
 	ret = libusb_set_configuration(dev->usb.dev, 1);
 	if (ret) {
-		STLINK2_LOG(ERROR, dev, "libusb_set_configuration failed\n");
+		STLINK2_LOG(ERROR, dev, "libusb_set_configuration failed:\n");
+		STLINK2_LOG(ERROR, dev, "\t%s\n", libusb_strerror(ret));
 		return false;
 	}
 
 	ret = libusb_claim_interface(dev->usb.dev, 0);
 	if (ret) {
-		STLINK2_LOG(ERROR, dev, "libusb_claim_interface failed\n");
+		STLINK2_LOG(ERROR, dev, "libusb_claim_interface failed:\n");
+		STLINK2_LOG(ERROR, dev, "\t%s\n", libusb_strerror(ret));
 		return false;
 	}
 
@@ -71,8 +78,9 @@ bool stlink2_usb_probe_dev(libusb_device *dev, struct stlink2 *st)
 	libusb_device_handle *devh;
 
 	ret = libusb_get_device_descriptor(dev, &desc);
-	if (ret < 0) {
-		STLINK2_LOG(ERROR, st, "libusb_get_device_descriptor failed\n");
+	if (ret) {
+		STLINK2_LOG(ERROR, st, "libusb_get_device_descriptor failed:\n");
+		STLINK2_LOG(ERROR, st, "\t%s\n", libusb_strerror(ret));
 		return false;
 	}
 
@@ -81,8 +89,9 @@ bool stlink2_usb_probe_dev(libusb_device *dev, struct stlink2 *st)
 		return false;
 
 	ret = libusb_open(dev, &devh);
-	if (ret < 0) {
-		STLINK2_LOG(ERROR, st, "libusb_open failed\n");
+	if (ret) {
+		STLINK2_LOG(ERROR, st, "libusb_open failed:\n");
+		STLINK2_LOG(ERROR, st, "\t%s\n", libusb_strerror(ret));
 		return false;
 	}
 
