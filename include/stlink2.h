@@ -95,6 +95,7 @@ struct stlink2 {
 		libusb_device_handle *dev;
 		uint8_t rx_ep;
 		uint8_t tx_ep;
+		unsigned int timeout;
 	} usb;
 };
 

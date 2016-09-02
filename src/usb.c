@@ -38,43 +38,28 @@ static bool stlink2_usb_claim(struct stlink2 *dev)
 	if (ret) {
 		ret = libusb_detach_kernel_driver(dev->usb.dev, 0);
 		if (ret == LIBUSB_ERROR_NOT_SUPPORTED) {
-			STLINK2_LOG(TRACE, dev, "libusb_detach_kernel_driver\n", libusb_strerror(ret));
-#ifdef LIBUSB_HAVE_STRERROR
-			STLINK2_LOG(TRACE, dev, "\t%s\n", libusb_strerror(ret));
-#endif
+			STLINK2_LOG(TRACE, dev, "libusb_detach_kernel_driver (%s)\n", libusb_error_name(ret));
 		} else if (ret) {
-			STLINK2_LOG(ERROR, dev, "libusb_detach_kernel_driver failed\n", libusb_strerror(ret));
-#ifdef LIBUSB_HAVE_STRERROR
-			STLINK2_LOG(ERROR, dev, "\t%s\n", libusb_strerror(ret));
-#endif
+			STLINK2_LOG(ERROR, dev, "libusb_detach_kernel_driver failed (%s)\n", libusb_error_name(ret));
 			return false;
 		}
 	}
 
 	ret = libusb_get_configuration(dev->usb.dev, &config);
 	if (ret) {
-		STLINK2_LOG(ERROR, dev, "libusb_get_configuration failed:\n");
-#ifdef LIBUSB_HAVE_STRERROR
-		STLINK2_LOG(ERROR, dev, "\t%s\n", libusb_strerror(ret));
-#endif
+		STLINK2_LOG(ERROR, dev, "libusb_get_configuration failed (%s)\n", libusb_error_name(ret));
 		return false;
 	}
 
 	ret = libusb_set_configuration(dev->usb.dev, 1);
 	if (ret) {
-		STLINK2_LOG(ERROR, dev, "libusb_set_configuration failed:\n");
-#ifdef LIBUSB_HAVE_STRERROR
-		STLINK2_LOG(ERROR, dev, "\t%s\n", libusb_strerror(ret));
-#endif
+		STLINK2_LOG(ERROR, dev, "libusb_set_configuration failed (%s)\n", libusb_error_name(ret));
 		return false;
 	}
 
 	ret = libusb_claim_interface(dev->usb.dev, 0);
 	if (ret) {
-		STLINK2_LOG(ERROR, dev, "libusb_claim_interface failed:\n");
-#ifdef LIBUSB_HAVE_STRERROR
-		STLINK2_LOG(ERROR, dev, "\t%s\n", libusb_strerror(ret));
-#endif
+		STLINK2_LOG(ERROR, dev, "libusb_claim_interface failed (%s)\n", libusb_error_name(ret));
 		return false;
 	}
 
@@ -89,10 +74,7 @@ bool stlink2_usb_probe_dev(libusb_device *dev, struct stlink2 *st)
 
 	ret = libusb_get_device_descriptor(dev, &desc);
 	if (ret) {
-		STLINK2_LOG(ERROR, st, "libusb_get_device_descriptor failed:\n");
-#ifdef LIBUSB_HAVE_STRERROR
-		STLINK2_LOG(ERROR, st, "\t%s\n", libusb_strerror(ret));
-#endif
+		STLINK2_LOG(ERROR, st, "libusb_get_device_descriptor failed (%s)\n", libusb_error_name(ret));
 		return false;
 	}
 
@@ -102,24 +84,23 @@ bool stlink2_usb_probe_dev(libusb_device *dev, struct stlink2 *st)
 
 	ret = libusb_open(dev, &devh);
 	if (ret) {
-		STLINK2_LOG(ERROR, st, "libusb_open failed:\n");
-#ifdef LIBUSB_HAVE_STRERROR
-		STLINK2_LOG(ERROR, st, "\t%s\n", libusb_strerror(ret));
-#endif
+		STLINK2_LOG(ERROR, st, "libusb_open failed (%s)\n", libusb_error_name(ret));
 		return false;
 	}
 
 	stlink2_log_set_file(st, stdout);
 	stlink2_log_set_level(st, STLINK2_LOGLEVEL_INFO);
 
-	st->usb.dev   = devh;
-	st->usb.pid   = desc.idProduct;
-	st->serial    = stlink2_usb_read_serial(st->usb.dev, &desc);
+	st->serial      = stlink2_usb_read_serial(st->usb.dev, &desc);
 	if (!st->serial) {
-		STLINK2_LOG(ERROR, st, "stlink2_usb_read_serial failed\n");
+		STLINK2_LOG(ERROR, st, "stlink2_usb_read_serial failed %s\n", libusb_error_name(ret));
 		libusb_close(devh);
 		return false;
 	}
+
+	st->usb.timeout = 3000;
+	st->usb.dev     = devh;
+	st->usb.pid     = desc.idProduct;
 
 	stlink2_usb_claim(st);
 	stlink2_usb_config_endpoints(st);
@@ -207,9 +188,9 @@ ssize_t stlink2_usb_send_recv(struct stlink2 *dev,
 				   txbuf,
 				   (int)txsize,
 				   &res,
-				   3000);
-	if (ret < 0) {
-		printf("error in tx: %s\n", libusb_error_name(ret));
+				   dev->usb.timeout);
+	if (ret) {
+		STLINK2_LOG(ERROR, dev, "libusb_bulk_transfer tx failed (%s)\n", libusb_error_name(ret));
 		return 0;
 	}
 
@@ -225,9 +206,9 @@ ssize_t stlink2_usb_send_recv(struct stlink2 *dev,
 				   rxbuf,
 				   (int)rxsize,
 				   &res,
-				   3000);
-	if (ret < 0) {
-		printf("error in rx: %s\n", libusb_error_name(ret));
+				   dev->usb.timeout);
+	if (ret) {
+		STLINK2_LOG(ERROR, dev, "libusb_bulk_transfer rx failed (%s)\n", libusb_error_name(ret));
 		return 0;
 	}
 
