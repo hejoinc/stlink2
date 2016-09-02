@@ -17,6 +17,26 @@ It is a complete clean rewrite to have full programmer control as a library with
 
 As it only uses the CMake build system it doesn't depend on obsecure non-portable shell-code and unix tools.
 
+# Building
+
+* C99 compatible compiler (gcc, clang, msvc)
+* CMake 2.8 or higher
+* libusb 1.0.9 or higher
+
+```
+make debug
+make release
+make test
+```
+
+# Tested
+
+The software is tested from time-to-time on the following platforms:
+
+* Debian 8.0 AMD64
+* OpenBSD 6.0 AMD64
+* FreeBSD 11-RC2 AMD64
+
 # License
 
 All code is [MIT](LICENSE) licensed, except for other components under the `3thparty` folder.
