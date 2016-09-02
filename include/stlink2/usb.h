@@ -20,7 +20,6 @@
 bool stlink2_usb_probe_dev(libusb_device *dev, struct stlink2 *st);
 void stlink2_usb_set_name_from_pid(struct stlink2 *dev);
 void stlink2_usb_config_endpoints(struct stlink2 *dev);
-char *stlink2_usb_read_serial(libusb_device_handle *handle, struct libusb_device_descriptor *desc);
 ssize_t stlink2_usb_send_recv(struct stlink2 *dev,
 			      uint8_t *txbuf, size_t txsize,
 			      uint8_t *rxbuf, size_t rxsize);

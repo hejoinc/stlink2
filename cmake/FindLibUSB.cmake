@@ -24,19 +24,31 @@ if(WIN32 OR CMAKE_VS_PLATFORM_NAME)
 	execute_process(COMMAND ${ZIP_LOCATION} x -y ${LIBUSB_WIN_ARCHIVE_PATH} -o${LIBUSB_WIN_OUTPUT_FOLDER})
 endif()
 
-FIND_PATH(LIBUSB_INCLUDE_DIR NAMES libusb.h
+# FreeBSD
+if (CMAKE_SYSTEM_NAME STREQUAL "FreeBSD")
+	FIND_PATH(LIBUSB_INCLUDE_DIR NAMES libusb.h
+	HINTS
+	/usr/include
+	)
+else ()
+	FIND_PATH(LIBUSB_INCLUDE_DIR NAMES libusb.h
 	HINTS
 	/usr
 	/usr/local
 	/opt
 	${LIBUSB_WIN_OUTPUT_FOLDER}/include
 	PATH_SUFFIXES libusb-1.0
-)
+	)
+endif()
+
+message(STATUS "LIBUSB_INCLUDE_DIR: ${LIBUSB_INCLUDE_DIR}")
 
 if (APPLE)
 	set(LIBUSB_NAME libusb-1.0.a)
 elseif(WIN32 OR CMAKE_VS_PLATFORM_NAME)
 	set(LIBUSB_NAME libusb-1.0.lib)
+elseif(CMAKE_SYSTEM_NAME STREQUAL "FreeBSD")
+	set(LIBUSB_NAME usb)
 else()
 	set(LIBUSB_NAME usb-1.0)
 endif()

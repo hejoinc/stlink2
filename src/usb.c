@@ -66,6 +66,55 @@ static bool stlink2_usb_claim(struct stlink2 *dev)
 	return true;
 }
 
+static char *stlink2_usb_read_binary_serial(const char *serial, size_t len)
+{
+	/** @todo need to get rid of this weird calculation... + 1, - 1 */
+	const size_t size = (len * 2) + 1;
+	char *_serial = malloc(size);
+
+	if (!_serial)
+		return NULL;
+
+	stlink2_hexstr_from_bin(_serial, size - 1, serial, len);
+	_serial[size - 1] = 0;
+
+	return _serial;
+}
+
+/**
+ * Read binary or hex encoded serial from usb handle
+ * @note The pointer must be freed by the callee when != NULL
+ * @return hex encoded string
+ */
+static char *stlink2_usb_read_serial(struct stlink2 *st, libusb_device_handle *handle,
+				     struct libusb_device_descriptor *desc)
+{
+	int ret;
+	char serial[8192];
+	bool ishexserial = true;
+
+	memset(serial, 0, sizeof(serial));
+
+	ret = libusb_get_string_descriptor_ascii(handle, desc->iSerialNumber, (unsigned char *)&serial, sizeof(serial));
+	if (ret < 0) {
+		STLINK2_LOG(ERROR, st, "libusb_get_string_descriptor_ascii failed (%s)\n", libusb_error_name(ret));
+		return NULL;
+	}
+
+	for (int n = 0; n < ret; n++) {
+		if (isxdigit(serial[n]))
+			continue;
+
+		ishexserial = false;
+		break;
+	}
+
+	if (!ishexserial)
+		return stlink2_usb_read_binary_serial(serial, ret);
+
+	return stlink2_strdup(serial);
+}
+
 bool stlink2_usb_probe_dev(libusb_device *dev, struct stlink2 *st)
 {
 	int ret = 0;
@@ -91,9 +140,9 @@ bool stlink2_usb_probe_dev(libusb_device *dev, struct stlink2 *st)
 	stlink2_log_set_file(st, stdout);
 	stlink2_log_set_level(st, STLINK2_LOGLEVEL_INFO);
 
-	st->serial      = stlink2_usb_read_serial(st->usb.dev, &desc);
+	st->serial = stlink2_usb_read_serial(st, st->usb.dev, &desc);
 	if (!st->serial) {
-		STLINK2_LOG(ERROR, st, "stlink2_usb_read_serial failed %s\n", libusb_error_name(ret));
+		STLINK2_LOG(ERROR, st, "stlink2_usb_read_serial failed\n");
 		libusb_close(devh);
 		return false;
 	}
@@ -121,51 +170,6 @@ void stlink2_usb_set_name_from_pid(struct stlink2 *dev)
 		dev->name = stlinkv2;
 	else if (dev->usb.pid == STLINK2_USB_PID_V2_1)
 		dev->name = stlinkv2_1;
-}
-
-char *stlink2_usb_read_binary_serial(const char *serial, size_t len)
-{
-	/** @todo need to get rid of this weird calculation... + 1, - 1 */
-	const size_t size = (len * 2) + 1;
-	char *_serial = malloc(size);
-
-	if (_serial) {
-		stlink2_hexstr_from_bin(_serial, size - 1, serial, len);
-		_serial[size - 1] = 0;
-	}
-
-	return _serial;
-}
-
-/**
- * Read binary or hex encoded serial from usb handle
- * @note The pointer must be freed by the callee when != NULL
- * @return hex encoded string
- */
-char *stlink2_usb_read_serial(libusb_device_handle *handle, struct libusb_device_descriptor *desc)
-{
-	bool ishexserial = true;
-	int ret;
-	char serial[256];
-
-	memset(serial, 0, sizeof(serial));
-
-	ret = libusb_get_string_descriptor_ascii(handle, desc->iSerialNumber, (unsigned char *)&serial, sizeof(serial));
-	if (ret < 0)
-		return NULL;
-
-	for (int n = 0; n < ret; n++) {
-		if (isxdigit(serial[n]))
-			continue;
-
-		ishexserial = false;
-		break;
-	}
-
-	if (!ishexserial)
-		return stlink2_usb_read_binary_serial(serial, ret);
-
-	return stlink2_strdup(serial);
 }
 
 void stlink2_usb_config_endpoints(struct stlink2 *dev)
