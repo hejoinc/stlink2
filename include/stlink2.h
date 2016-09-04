@@ -62,43 +62,11 @@ uint32_t stlink2_get_flash_size(stlink2_t dev);
 const char *stlink2_get_unique_id(stlink2_t dev);
 
 void stlink2_read_reg(stlink2_t dev, uint8_t idx, uint32_t *val);
+void stlink2_read_debug32(struct stlink2 *dev, uint32_t addr, uint32_t *val);
 
 #include <stlink2/log.h>
 #include <stlink2/usb.h>
 #include <stlink2/stm32.h>
 #include <stlink2/semihosting.h>
-
-/** @todo internal... */
-struct stlink2 {
-	char *serial;
-	const char *name;
-	struct {
-		enum stlink2_loglevel level;
-		FILE *fp;
-	} log;
-	struct {
-		uint32_t coreid;
-		uint32_t chipid;
-		uint32_t cpuid;
-		uint32_t flash_size;
-		uint8_t unique_id[12];
-		char *unique_id_str;
-	} mcu;
-	struct {
-		uint8_t stlink;
-		uint8_t jtag;
-		uint8_t swim;
-		char *version;
-	} fw;
-	struct {
-		uint16_t pid;
-		libusb_device_handle *dev;
-		uint8_t rx_ep;
-		uint8_t tx_ep;
-		unsigned int timeout;
-	} usb;
-};
-
-void stlink2_read_debug32(struct stlink2 *dev, uint32_t addr, uint32_t *val);
 
 #endif /* STLINK2_H_ */

@@ -4,6 +4,7 @@
  * license that can be found in the LICENSE file.
  */
 #include <stlink2.h>
+#include <stlink2-internal.h>
 #include <stlink2/utils/hexstr.h>
 
 #include <ctype.h>
@@ -66,7 +67,7 @@ static bool stlink2_usb_claim(struct stlink2 *dev)
 	return true;
 }
 
-static char *stlink2_usb_read_binary_serial(const char *serial, size_t len)
+static char *stlink2_usb_read_serial_from_bin(const char *serial, size_t len)
 {
 	/** @todo need to get rid of this weird calculation... + 1, - 1 */
 	const size_t size = (len * 2) + 1;
@@ -90,7 +91,7 @@ static char *stlink2_usb_read_serial(struct stlink2 *st, libusb_device_handle *h
 				     struct libusb_device_descriptor *desc)
 {
 	int ret;
-	char serial[8192];
+	char serial[128];
 	bool ishexserial = true;
 
 	memset(serial, 0, sizeof(serial));
@@ -110,7 +111,7 @@ static char *stlink2_usb_read_serial(struct stlink2 *st, libusb_device_handle *h
 	}
 
 	if (!ishexserial)
-		return stlink2_usb_read_binary_serial(serial, ret);
+		return stlink2_usb_read_serial_from_bin(serial, ret);
 
 	return stlink2_strdup(serial);
 }

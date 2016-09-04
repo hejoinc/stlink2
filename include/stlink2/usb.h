@@ -6,7 +6,6 @@
 #ifndef STLINK2_USB_H_
 #define STLINK2_USB_H_
 
-#include <stlink2.h>
 #include <libusb.h>
 #include <stdbool.h>
 

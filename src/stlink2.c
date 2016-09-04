@@ -3,7 +3,7 @@
  * Use of this source code is governed by the MIT
  * license that can be found in the LICENSE file.
  */
-#include <stlink2.h>
+#include <stlink2-internal.h>
 #include <stlink2/log.h>
 #include <stlink2/cmd.h>
 #include <stlink2/cortexm.h>
@@ -400,14 +400,13 @@ uint32_t stlink2_get_flash_size(stlink2_t dev)
 	return dev->mcu.flash_size;
 }
 
-/** @todo implement 96-bit mem-read from 0x1FF800D0 */
 const char *stlink2_get_unique_id(stlink2_t dev)
 {
-	if (dev->mcu.unique_id_str)
-		return dev->mcu.unique_id_str;
+	if (dev->mcu.unique_id)
+		return dev->mcu.unique_id;
 
-	dev->mcu.unique_id_str = calloc(1, 25);
-	if (!dev->mcu.unique_id_str)
+	dev->mcu.unique_id = malloc(32);
+	if (!dev->mcu.unique_id)
 		return NULL;
 
 	uint32_t addr = 0x1ff800d0; /**< @todo hardcoded reg */
@@ -416,11 +415,13 @@ const char *stlink2_get_unique_id(stlink2_t dev)
 	for (size_t n = 0; n < 3; n++) {
 		stlink2_read_debug32(dev, addr, &unique_id[n]);
 		printf("[%08x] %08x\n", addr, unique_id[n]);
+		unique_id[n] = htonl(unique_id[n]);
 		addr += 4;
 	}
 
-	stlink2_hexstr_from_bin(dev->mcu.unique_id_str, 24, (void *)unique_id, 12);
-	return dev->mcu.unique_id_str;
+	stlink2_hexstr_from_bin(dev->mcu.unique_id, 24, (void *)unique_id, 12);
+	dev->mcu.unique_id[24] = 0;
+	return dev->mcu.unique_id;
 }
 
 float stlink2_get_target_voltage(stlink2_t dev)
@@ -448,5 +449,5 @@ void stlink2_flush(stlink2_t dev)
 {
 	dev->mcu.coreid = 0;
 	dev->mcu.cpuid  = 0;
-	free(dev->mcu.unique_id_str);
+	free(dev->mcu.unique_id);
 }
