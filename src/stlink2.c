@@ -8,6 +8,7 @@
 #include <stlink2/cmd.h>
 #include <stlink2/cortexm.h>
 #include <stlink2/utils/bconv.h>
+#include <stlink2/utils/hexstr.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -405,13 +406,20 @@ const char *stlink2_get_unique_id(stlink2_t dev)
 	if (dev->mcu.unique_id_str)
 		return dev->mcu.unique_id_str;
 
-	dev->mcu.unique_id_str = malloc(32);
+	dev->mcu.unique_id_str = calloc(1, 25);
 	if (!dev->mcu.unique_id_str)
 		return NULL;
 
-	memset(dev->mcu.unique_id_str, '0', 24);
-	dev->mcu.unique_id_str[24] = 0;
+	uint32_t addr = 0x1ff800d0; /**< @todo hardcoded reg */
+	uint32_t unique_id[3]; /* 96-bit */
 
+	for (size_t n = 0; n < 3; n++) {
+		stlink2_read_debug32(dev, addr, &unique_id[n]);
+		printf("[%08x] %08x\n", addr, unique_id[n]);
+		addr += 4;
+	}
+
+	stlink2_hexstr_from_bin(dev->mcu.unique_id_str, 24, (void *)unique_id, 12);
 	return dev->mcu.unique_id_str;
 }
 
