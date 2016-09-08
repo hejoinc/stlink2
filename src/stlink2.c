@@ -394,17 +394,6 @@ uint16_t stlink2_get_devid(stlink2_t dev)
 
 uint32_t stlink2_get_flash_size(stlink2_t dev)
 {
-	if (dev->mcu.sram_size)
-		return dev->mcu.sram_size;
-
-	uint32_t reg = 0x1ff800cc; /** @todo hardcoded for devid 0x427 for now */
-
-	stlink2_read_debug32(dev, reg, &dev->mcu.sram_size);
-	return dev->mcu.sram_size;
-}
-
-uint32_t stlink2_get_flash_size(stlink2_t dev)
-{
 	if (dev->mcu.flash_size)
 		return dev->mcu.flash_size;
 
