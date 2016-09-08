@@ -19,6 +19,10 @@ enum stlink2_loglevel {
 	STLINK2_LOGLEVEL_TRACE
 };
 
+#ifndef __func__ && defined(__FUNCTION__)
+#define __func__ __FUNCTION__
+#endif
+
 #define STLINK2_LOG(level, dev, format, ...) \
 	stlink2_log(STLINK2_LOGLEVEL_##level, __FILE__, __LINE__, __func__, dev, format, ##__VA_ARGS__)
 #define STLINK2_LOG_WRITE(level, dev, format, ...) \
