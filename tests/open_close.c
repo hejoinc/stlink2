@@ -59,7 +59,6 @@ static void test_open_close(const char *serial)
 		printf("  coreid: %08x\n",  stlink2_get_coreid(dev));
 		printf("  chipid: %08x\n",  stlink2_get_chipid(dev));
 		printf("   devid: %s (0x%03x)\n", stlink2_stm32_devid_str(devid), devid);
-		printf("  sram size: %dKiB\n", stlink2_get_sram_size(dev));
 		printf("  flash size: %dKiB\n", stlink2_get_flash_size(dev));
 		printf("  unique id: %s\n", stlink2_get_unique_id(dev));
 
