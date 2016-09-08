@@ -39,4 +39,6 @@ struct stlink2 {
 	} usb;
 };
 
+void stlink2_read_debug32(struct stlink2 *dev, uint32_t addr, uint32_t *val);
+
 #endif /* STLINK2_INTERNAL_H_ */

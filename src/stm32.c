@@ -5,141 +5,88 @@
  */
 #include <stlink2.h>
 
-const char *stlink2_stm32_devid_str(uint32_t chipid)
+const char *stlink2_stm32_devid_str(uint32_t devid)
 {
-	const uint16_t devid = chipid & 0xfff;
-
-	static const struct devid_str {
-		uint16_t devid;
-		const char *str;
-	} _devid_str[] = {
-		{STLINK2_STM32_DEVID_STM32F2XX,          "STM32F2xx"},
-		{STLINK2_STM32_DEVID_STM32L1XX_CAT3_MED, "STM32L1xx (Cat.3 - Medium+ Density)"},
-		{STLINK2_STM32_DEVID_STM32L0XX_CAT1,     "STM32L0xx (Cat.1)"}
-	};
-
-	for (size_t n = 0; n < STLINK2_ARRAY_SIZE(_devid_str); n++) {
-		if (devid == _devid_str[n].devid)
-			return _devid_str[n].str;
-	}
-
-	return NULL;
-}
-
-void stlink2_stm32_info(struct stlink2 *dev, char *buf, int buf_size)
-{
-	uint32_t dbgmcu_idcode;
-
-	/* read stm32 device id register */
-	dbgmcu_idcode = stlink2_get_chipid(dev);
-
-	uint16_t device_id = dbgmcu_idcode & 0xfff;
-	uint16_t rev_id = dbgmcu_idcode >> 16;
-	const char *device_str = stlink2_stm32_devid_str(dbgmcu_idcode);
-	const char *rev_str = NULL;
-
-	switch (device_id) {
-	case STLINK2_STM32_DEVID_STM32F2XX:
-		switch (rev_id) {
-		case STLINK2_STM32_REVID_STM32F2XX_REV_A:
-			rev_str = "A";
-			break;
-		case STLINK2_STM32_REVID_STM32F2XX_REV_B:
-			rev_str = "B";
-			break;
-		case STLINK2_STM32_REVID_STM32F2XX_REV_Z:
-			rev_str = "Z";
-			break;
-		case STLINK2_STM32_REVID_STM32F2XX_REV_Y:
-			rev_str = "Y";
-			break;
-		case STLINK2_STM32_REVID_STM32F2XX_REV_X:
-			rev_str = "X";
-			break;
-		}
-		break;
-	case 0x413:
-	case 0x419:
-		device_str = "STM32F4xx";
-
-		switch (rev_id) {
-		case STLINK2_STM32_REVID_STM32F4XX_REV_A:
-			rev_str = "A";
-			break;
-		case STLINK2_STM32_REVID_STM32F4XX_REV_Z:
-			rev_str = "Z";
-			break;
-		case STLINK2_STM32_REVID_STM32F4XX_REV_Y:
-			rev_str = "Y";
-			break;
-		case STLINK2_STM32_REVID_STM32F4XX_REV_1:
-			rev_str = "1";
-			break;
-		case STLINK2_STM32_REVID_STM32F4XX_REV_3:
-			rev_str = "3";
-			break;
-		}
-		break;
-	case 0x421:
-		device_str = "STM32F446";
-
-		switch (rev_id) {
-		case 0x1000:
-			rev_str = "A";
-			break;
-		}
-		break;
-	case 0x423:
-	case 0x431:
-	case 0x433:
-	case 0x458:
-	case 0x441:
-		device_str = "STM32F4xx (Low Power)";
-
-		switch (rev_id) {
-		case 0x1000:
-			rev_str = "A";
-			break;
-
-		case 0x1001:
-			rev_str = "Z";
-			break;
-		}
-		break;
-
-	case 0x449:
-		device_str = "STM32F7[4|5]x";
-
-		switch (rev_id) {
-		case 0x1000:
-			rev_str = "A";
-			break;
-
-		case 0x1001:
-			rev_str = "Z";
-			break;
-		}
-		break;
-	case 0x434:
-		device_str = "STM32F46x/F47x";
-
-		switch (rev_id) {
-		case 0x1000:
-			rev_str = "A";
-			break;
-		}
-		break;
+	switch (devid) {
+	case STLINK2_STM32_DEVID_F10XXLOWD:
+		return "STM32F10xx Low-density";
+	case STLINK2_STM32_DEVID_F405XXF40:
+		return "STM32F405xx/F407xx/F415xx/F417xx";
+	case STLINK2_STM32_DEVID_F10XXHIGH:
+		return "STM32F10xx High-density";
+	case STLINK2_STM32_DEVID_L47XL48X:
+		return "STM32L47x/L48x";
+	case STLINK2_STM32_DEVID_L0XX64K:
+		return "STM32L0xx 64k";
+	case STLINK2_STM32_DEVID_F10XXCONN:
+		return "STM32F10xx Connectivity Line";
+	case STLINK2_STM32_DEVID_F42XXXF43:
+		return "STM32F42xxx/F43xxx";
+	case STLINK2_STM32_DEVID_F100XXLOW:
+		return "STM32F100xx Low/Medium density Value Line";
+	case STLINK2_STM32_DEVID_F446XX:
+		return "STM32F446xx";
+	case STLINK2_STM32_DEVID_F302XBXCF:
+		return "STM32F302xB-xC/F303xB-xC/F358xx";
+	case STLINK2_STM32_DEVID_F401XBC:
+		return "STM32F401xB/C";
+	case STLINK2_STM32_DEVID_L03X32K:
+		return "STM32L03x 32k";
+	case STLINK2_STM32_DEVID_L100XCL15:
+		return "STM32L100xC/L15xxC/L162xC";
+	case STLINK2_STM32_DEVID_F100XXHIG:
+		return "STM32F100xx High-density Value Line";
+	case STLINK2_STM32_DEVID_F10XXXLDE:
+		return "STM32F10xx XL-density";
+	case STLINK2_STM32_DEVID_F411XCE:
+		return "STM32F411xC/E";
+	case STLINK2_STM32_DEVID_F37XX:
+		return "STM32F37xx";
+	case STLINK2_STM32_DEVID_F401XDE:
+		return "STM32F401xD/E";
+	case STLINK2_STM32_DEVID_F469XF479:
+		return "STM32F469x/F479x";
+	case STLINK2_STM32_DEVID_L43X:
+		return "STM32L43x";
+	case STLINK2_STM32_DEVID_L15XXCXXD:
+		return "STM32L15xxC-xxD/L162xC-xD";
+	case STLINK2_STM32_DEVID_L15XXEL16:
+		return "STM32L15xxE/L162xE";
+	case STLINK2_STM32_DEVID_F303X4X6X:
+		return "STM32F303x4-x6-x8/F328xx/F334xx";
+	case STLINK2_STM32_DEVID_F301X4X6X:
+		return "STM32F301x4-x6-x8/F302x4-x6-x8/F318xx";
+	case STLINK2_STM32_DEVID_F051X4F05:
+		return "STM32F051x4/F051x6/F051x8/F030x8";
+	case STLINK2_STM32_DEVID_F412XX:
+		return "STM32F412xx";
+	case STLINK2_STM32_DEVID_F091XBXCF:
+		return "STM32F091xB-xC/F098xC/F030xC";
+	case STLINK2_STM32_DEVID_F030X4F03:
+		return "STM32F030x4/F030x6";
+	case STLINK2_STM32_DEVID_F04XX:
+		return "STM32F04xx";
+	case STLINK2_STM32_DEVID_F302XEF30:
+		return "STM32F302xE/F303xE/F398xx";
+	case STLINK2_STM32_DEVID_L07XSTM32_DEVID_:
+		return "STM32L07x/STM32L08x";
+	case STLINK2_STM32_DEVID_F072XXF07:
+		return "STM32F072xx/F078xx";
+	case STLINK2_STM32_DEVID_F74XF75X:
+		return "STM32F74x/F75x";
+	case STLINK2_STM32_DEVID_H7XX:
+		return "STM32H7xx";
+	case STLINK2_STM32_DEVID_F76X:
+		return "STM32F76x";
+	case STLINK2_STM32_DEVID_F72XF73X:
+		return "STM32F72x/F73x";
+	case STLINK2_STM32_DEVID_L01XL02X:
+		return "STM32L01x/L02x";
+	case STLINK2_STM32_DEVID_F410XX:
+		return "STM32F410xx";
 	default:
 		break;
 	}
 
-	if (!device_str) {
-		snprintf(buf, buf_size, "Cannot identify target as a STM32");
-		return;
-	}
-
-	if (rev_str != NULL)
-		snprintf(buf, buf_size, "%s - Rev: %s", device_str, rev_str);
-	else
-		snprintf(buf, buf_size, "%s - Rev: unknown (0x%04x)", device_str, rev_id);
+	return "unknown";
 }

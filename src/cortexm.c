@@ -10,7 +10,7 @@ enum stlink2_cortexm_cpuid_partno stlink2_cortexm_cpuid_get_partno(uint32_t cpui
 	return (cpuid >> 4) & 0xfff;
 }
 
-const char *stlink2_cortexm_cpuid_get_partno_str(uint32_t cpuid)
+const char *stlink2_cortexm_cpuid_partno_str(uint32_t cpuid)
 {
 	enum stlink2_cortexm_cpuid_partno partno;
 

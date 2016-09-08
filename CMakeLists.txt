@@ -1,3 +1,8 @@
+#
+# Copyright 2016 Jerry Jacobs. All rights reserved.
+# Use of this source code is governed by the MIT
+# license that can be found in the LICENSE file.
+#
 cmake_minimum_required(VERSION 2.8)
 include(CheckFunctionExists)
 
@@ -8,7 +13,11 @@ endif ()
 
 project(stlink2 C)
 
-set (CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
+set(STLINK2_VERSION_MAJOR 0)
+set(STLINK2_VERSION_MINOR 0)
+set(STLINK2_VERSION_PATCH 0)
+
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 if(WIN32)
 	find_package(7Zip REQUIRED)
@@ -16,8 +25,6 @@ if(WIN32)
 endif()
 
 find_package(LibUSB REQUIRED)
-message(STATUS "libusb inc: " ${LIBUSB_INCLUDE_DIR})
-message(STATUS "libusb lib: " ${LIBUSB_LIBRARY})
 
 include(cmake/CheckCCompilerFlag.txt)
 if (NOT WIN32)
@@ -81,7 +88,6 @@ set(SRC
 	src/usb.c
 	src/stm32.c
 	src/semihosting.c
-	src/utils/bconv.c
 	src/utils/hexstr.c
 	src/utils/msleep.c
 )

@@ -41,7 +41,7 @@ static const char *stlink2_log_file_strip_prefix(const char *file, const char *p
 	return _file;
 }
 
-void stlink2_log(enum stlink2_loglevel level, const char *file, unsigned int line, stlink2_t dev,
+void stlink2_log(enum stlink2_loglevel level, const char *file, unsigned int line, const char *function, stlink2_t dev,
 		 const char *format, ...)
 {
 	if (!dev->log.fp || level > dev->log.level)
@@ -49,9 +49,9 @@ void stlink2_log(enum stlink2_loglevel level, const char *file, unsigned int lin
 
 	va_list args;
 
-	if (file && line) {
+	if (file && line && function) {
 		file = stlink2_log_file_strip_prefix(file, STLINK2_BUILD_SOURCE_DIR);
-		fprintf(dev->log.fp, "%s %s:%d : ", stlink2_loglevel_str(level), file, line);
+		fprintf(dev->log.fp, "%s (%s) %s:%d : ", stlink2_loglevel_str(level), function, file, line);
 	}
 
 	va_start(args, format);

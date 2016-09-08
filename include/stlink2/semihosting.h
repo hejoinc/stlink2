@@ -40,4 +40,6 @@ enum stlink2_semihosting_exception {
 	STLINK2_SEMIHOSTING_EXCEPTION_APPLICATION_EXIT    = 0x20026
 };
 
+bool stlink2_semihosting(struct stlink2 *dev);
+
 #endif /* STLINK2_SEMIHOSTING_H_ */

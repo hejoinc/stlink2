@@ -3,9 +3,11 @@
  * Use of this source code is governed by the MIT
  * license that can be found in the LICENSE file.
  */
-#include <stlink2.h>
 #include <stdio.h>
 #include <stdbool.h>
+
+#include <stlink2.h>
+#include <stlink2-internal.h>
 
 void stlink2_semihosting_op_sys_open(struct stlink2 *dev)
 {
