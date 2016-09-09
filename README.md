@@ -33,6 +33,7 @@ make test
 
 The software is tested from time-to-time on the following platforms:
 
+* Mac OS X 10.11 AMD64
 * Debian 8.0 AMD64
 * OpenBSD 6.0 AMD64
 * FreeBSD 11-RC2 AMD64
