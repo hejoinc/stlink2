@@ -14,6 +14,9 @@ clone_folder: c:\projects\stlink2
 platform: x64
 configuration: Release
 
+cache:
+  - libusb-1.0.20.7z
+
 install:
   # by default, all script lines are interpreted as batch
 
