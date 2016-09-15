@@ -51,7 +51,6 @@
 #	define le64toh(x) letoh64(x)
 #elif defined(__WINDOWS__)
 #	include <winsock2.h>
-#	include <sys/param.h>
 
 #	if BYTE_ORDER == LITTLE_ENDIAN
 #		define htobe16(x) htons(x)
