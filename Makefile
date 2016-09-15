@@ -1,3 +1,5 @@
+MAKEFLAGS+=-s
+
 all: debug
 ci: lint debug release test
 

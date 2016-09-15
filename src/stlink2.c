@@ -70,21 +70,25 @@ static void stlink2_debug_command_u32(struct stlink2 *dev, uint8_t cmd, uint32_t
 	memset(_cmd, 0, sizeof(_cmd));
 	_cmd[0] = STLINK2_CMD_DEBUG;
 	_cmd[1] = cmd;
-	*((uint32_t *)&_cmd[2]) = htole32(param);
+
+	param = htole32(param);
+	memcpy(&_cmd[2], &param, sizeof(param));
+
 
 	stlink2_usb_send_recv(dev, _cmd, sizeof(_cmd), buf, bufsize);
 }
 
 void stlink2_read_debug32(struct stlink2 *dev, uint32_t addr, uint32_t *val)
 {
-	(void)val;
+	uint32_t _val;
 	uint8_t _rep[8];
 
 	memset(_rep, 0, sizeof(_rep));
 
 	stlink2_debug_command_u32(dev, STLINK2_CMD_JTAG_READDEBUG_32BIT, addr, _rep, sizeof(_rep));
 
-	*val = le32toh(*((uint32_t *)&_rep[4]));
+	memcpy(&_val, &_rep[4], sizeof(_val));
+	*val = le32toh(_val);
 }
 
 static void stlink2_write_debug32(struct stlink2 *dev, uint32_t addr, uint32_t val)
@@ -94,8 +98,12 @@ static void stlink2_write_debug32(struct stlink2 *dev, uint32_t addr, uint32_t v
 
 	_cmd[0] = STLINK2_CMD_DEBUG;
 	_cmd[1] = STLINK2_CMD_JTAG_WRITEDEBUG_32BIT;
-	_cmd[2] = htole32(addr);
-	_cmd[3] = htole32(val);
+
+	addr = htole32(addr);
+	val = htole32(val);
+
+	memcpy(&_cmd[2], &addr, sizeof(addr));
+	memcpy(&_cmd[6], &val, sizeof(val));
 
 	stlink2_usb_send_recv(dev, _cmd, sizeof(_cmd), _rep, sizeof(_rep));
 }
@@ -211,10 +219,12 @@ void stlink2_read_all_regs(stlink2_t dev)
 
 void stlink2_read_reg(stlink2_t dev, uint8_t idx, uint32_t *val)
 {
+	uint32_t _val;
 	uint8_t rep[8];
 
 	stlink2_debug_command(dev, STLINK2_CMD_DEBUG_READ_REG, idx, rep, sizeof(rep));
-	*val = le32toh(*((uint32_t *)&rep[4]));
+	memcpy(&_val, &rep[4], sizeof(_val));
+	*val = le32toh(_val);
 }
 
 void stlink2_write_reg(stlink2_t dev, uint8_t idx, uint32_t val)
@@ -226,7 +236,9 @@ void stlink2_write_reg(stlink2_t dev, uint8_t idx, uint32_t val)
 	_cmd[0] = STLINK2_CMD_DEBUG;
 	_cmd[1] = STLINK2_CMD_DEBUG_WRITE_REG;
 	_cmd[2] = idx;
-	*((uint32_t *)&_cmd[3]) = htole32(val);
+
+	val = htole32(val);
+	memcpy(&_cmd[3], &val, sizeof(val));
 
 	stlink2_usb_send_recv(dev, _cmd, STLINK2_USB_CMD_SIZE, rep, sizeof(rep));
 }
@@ -439,8 +451,11 @@ float stlink2_get_target_voltage(stlink2_t dev)
 
 	stlink2_usb_send_recv(dev, cmd, 1, rep, sizeof(rep));
 
-	adc_results[0] = le32toh(*((uint32_t *)rep));
-	adc_results[1] = le32toh(*((uint32_t *)&rep[4]));
+	memcpy(adc_results, rep, sizeof(uint32_t));
+	memcpy(&adc_results[1], &rep[4], sizeof(uint32_t));
+
+	adc_results[0] = le32toh(adc_results[0]);
+	adc_results[0] = le32toh(adc_results[0]);
 
 	if (adc_results[0])
 		voltage = 2 * ((float)adc_results[1]) * (float)(1.2 / adc_results[0]);
