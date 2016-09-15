@@ -74,7 +74,6 @@ static void stlink2_debug_command_u32(struct stlink2 *dev, uint8_t cmd, uint32_t
 	param = htole32(param);
 	memcpy(&_cmd[2], &param, sizeof(param));
 
-
 	stlink2_usb_send_recv(dev, _cmd, sizeof(_cmd), buf, bufsize);
 }
 
