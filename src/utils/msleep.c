@@ -6,7 +6,7 @@
 #include <stlink2.h>
 
 #ifdef STLINK2_HAVE_WINDOWS
-
+#include <winsock2.h>
 #include <windows.h>
 
 void stlink2_msleep(int milliseconds)
