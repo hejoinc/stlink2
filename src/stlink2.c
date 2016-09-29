@@ -77,6 +77,20 @@ static void stlink2_debug_command_u32(struct stlink2 *dev, uint8_t cmd, uint32_t
 	stlink2_usb_send_recv(dev, _cmd, sizeof(_cmd), buf, bufsize);
 }
 
+void stlink2_read_debug16(struct stlink2 *dev, uint32_t addr, uint16_t *val)
+{
+	uint32_t _val;
+	uint8_t _rep[8];
+
+	memset(_rep, 0, sizeof(_rep));
+
+	stlink2_debug_command_u32(dev, STLINK2_CMD_JTAG_READDEBUG_32BIT, addr, _rep, sizeof(_rep));
+
+	memcpy(&_val, &_rep[4], sizeof(_val));
+	_val = le32toh(_val);
+	*val = (_val >> 16) & 0xffff;
+}
+
 void stlink2_read_debug32(struct stlink2 *dev, uint32_t addr, uint32_t *val)
 {
 	uint32_t _val;
@@ -385,7 +399,7 @@ uint32_t stlink2_get_chipid(stlink2_t dev)
 		return dev->mcu.chipid;
 
 	/** @todo move reg into macro */
-	stlink2_read_debug32(dev, 0xE0042000, &dev->mcu.chipid);
+	stlink2_read_debug32(dev, STLINK2_CORTEXM_IDCODE_REG, &dev->mcu.chipid);
 	return dev->mcu.chipid;
 }
 
@@ -408,9 +422,17 @@ uint32_t stlink2_get_flash_size(stlink2_t dev)
 	if (dev->mcu.flash_size)
 		return dev->mcu.flash_size;
 
-	uint32_t reg = 0x1ff800cc; /** @todo hardcoded for devid 0x427 for now */
+	uint32_t reg;
 
-	stlink2_read_debug32(dev, reg, &dev->mcu.flash_size);
+	reg = stlink2_stm32_flash_size_reg(stlink2_get_devid(dev));
+	if (!reg) {
+		STLINK2_LOG(ERROR, dev, "flash_size register for devid 0x%03x is unknown", stlink2_get_devid(dev));
+		return 0;
+	}
+
+	stlink2_read_debug16(dev, reg, &dev->mcu.flash_size);
+	STLINK2_LOG(DEBUG, dev, "flash size (reg: 0x%04x) : 0x%04x\n", reg, dev->mcu.flash_size);
+
 	return dev->mcu.flash_size;
 }
 

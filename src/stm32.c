@@ -8,85 +8,29 @@
 const char *stlink2_stm32_devid_str(uint32_t devid)
 {
 	switch (devid) {
-	case STLINK2_STM32_DEVID_F10XXLOWD:
-		return "STM32F10xx Low-density";
-	case STLINK2_STM32_DEVID_F405XXF40:
-		return "STM32F405xx/F407xx/F415xx/F417xx";
-	case STLINK2_STM32_DEVID_F10XXHIGH:
-		return "STM32F10xx High-density";
-	case STLINK2_STM32_DEVID_L47XL48X:
-		return "STM32L47x/L48x";
-	case STLINK2_STM32_DEVID_L0XX64K:
-		return "STM32L0xx 64k";
-	case STLINK2_STM32_DEVID_F10XXCONN:
-		return "STM32F10xx Connectivity Line";
-	case STLINK2_STM32_DEVID_F42XXXF43:
-		return "STM32F42xxx/F43xxx";
-	case STLINK2_STM32_DEVID_F100XXLOW:
-		return "STM32F100xx Low/Medium density Value Line";
-	case STLINK2_STM32_DEVID_F446XX:
-		return "STM32F446xx";
-	case STLINK2_STM32_DEVID_F302XBXCF:
-		return "STM32F302xB-xC/F303xB-xC/F358xx";
-	case STLINK2_STM32_DEVID_F401XBC:
-		return "STM32F401xB/C";
-	case STLINK2_STM32_DEVID_L03X32K:
-		return "STM32L03x 32k";
-	case STLINK2_STM32_DEVID_L100XCL15:
-		return "STM32L100xC/L15xxC/L162xC";
-	case STLINK2_STM32_DEVID_F100XXHIG:
-		return "STM32F100xx High-density Value Line";
-	case STLINK2_STM32_DEVID_F10XXXLDE:
-		return "STM32F10xx XL-density";
-	case STLINK2_STM32_DEVID_F411XCE:
-		return "STM32F411xC/E";
-	case STLINK2_STM32_DEVID_F37XX:
-		return "STM32F37xx";
-	case STLINK2_STM32_DEVID_F401XDE:
-		return "STM32F401xD/E";
-	case STLINK2_STM32_DEVID_F469XF479:
-		return "STM32F469x/F479x";
-	case STLINK2_STM32_DEVID_L43X:
-		return "STM32L43x";
-	case STLINK2_STM32_DEVID_L15XXCXXD:
-		return "STM32L15xxC-xxD/L162xC-xD";
-	case STLINK2_STM32_DEVID_L15XXEL16:
-		return "STM32L15xxE/L162xE";
-	case STLINK2_STM32_DEVID_F303X4X6X:
-		return "STM32F303x4-x6-x8/F328xx/F334xx";
-	case STLINK2_STM32_DEVID_F301X4X6X:
-		return "STM32F301x4-x6-x8/F302x4-x6-x8/F318xx";
-	case STLINK2_STM32_DEVID_F051X4F05:
-		return "STM32F051x4/F051x6/F051x8/F030x8";
-	case STLINK2_STM32_DEVID_F412XX:
-		return "STM32F412xx";
-	case STLINK2_STM32_DEVID_F091XBXCF:
-		return "STM32F091xB-xC/F098xC/F030xC";
-	case STLINK2_STM32_DEVID_F030X4F03:
-		return "STM32F030x4/F030x6";
-	case STLINK2_STM32_DEVID_F04XX:
-		return "STM32F04xx";
-	case STLINK2_STM32_DEVID_F302XEF30:
-		return "STM32F302xE/F303xE/F398xx";
-	case STLINK2_STM32_DEVID_L07XSTM32_DEVID_:
-		return "STM32L07x/STM32L08x";
-	case STLINK2_STM32_DEVID_F072XXF07:
-		return "STM32F072xx/F078xx";
-	case STLINK2_STM32_DEVID_F74XF75X:
-		return "STM32F74x/F75x";
-	case STLINK2_STM32_DEVID_H7XX:
-		return "STM32H7xx";
-	case STLINK2_STM32_DEVID_F76X:
-		return "STM32F76x";
-	case STLINK2_STM32_DEVID_F72XF73X:
-		return "STM32F72x/F73x";
-	case STLINK2_STM32_DEVID_L01XL02X:
-		return "STM32L01x/L02x";
-	case STLINK2_STM32_DEVID_F410XX:
-		return "STM32F410xx";
+#define STLINK2_STM32_DEV(name, string, devid, flash_size_reg) \
+	case STLINK2_STM32_DEVID_##name: \
+		return string;
+STLINK2_STM32_DEV_LIST
+#undef  STLINK2_STM32_DEV
 	default:
 		break;
 	}
 
 	return "unknown";
+}
+
+uint32_t stlink2_stm32_flash_size_reg(uint32_t devid)
+{
+	switch (devid) {
+#define STLINK2_STM32_DEV(name, string, devid, flash_size_reg) \
+	case STLINK2_STM32_DEVID_##name: \
+		return flash_size_reg;
+STLINK2_STM32_DEV_LIST
+#undef  STLINK2_STM32_DEV
+	default:
+		break;
+	}
+
+	return 0x00000000;
 }

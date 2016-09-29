@@ -21,7 +21,7 @@ struct stlink2 {
 		uint32_t coreid;
 		uint32_t chipid;
 		uint32_t cpuid;
-		uint32_t flash_size;
+		uint16_t flash_size;
 		char *unique_id;
 	} mcu;
 	struct {
@@ -39,6 +39,7 @@ struct stlink2 {
 	} usb;
 };
 
+void stlink2_read_debug16(struct stlink2 *dev, uint32_t addr, uint16_t *val);
 void stlink2_read_debug32(struct stlink2 *dev, uint32_t addr, uint32_t *val);
 
 #endif /* STLINK2_INTERNAL_H_ */
