@@ -60,7 +60,7 @@ static void test_open_close(const char *serial)
 		printf("  chipid: %08x\n",  stlink2_get_chipid(dev));
 		printf("   devid: %s (0x%03x)\n", stlink2_stm32_devid_str(devid), devid);
 		printf("  flash size: %dKiB\n", stlink2_get_flash_size(dev));
-		printf("  unique id: %s\n", stlink2_get_unique_id(dev));
+		printf("  unique id: %s\n", stlink2_get_unique_id(dev, 0x1ff800d0)); /** @todo STM32L152 now... */
 
 #ifdef BLA
 		uint8_t *flash = malloc(1024);

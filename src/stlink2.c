@@ -80,15 +80,11 @@ static void stlink2_debug_command_u32(struct stlink2 *dev, uint8_t cmd, uint32_t
 void stlink2_read_debug16(struct stlink2 *dev, uint32_t addr, uint16_t *val)
 {
 	uint32_t _val;
-	uint8_t _rep[8];
 
-	memset(_rep, 0, sizeof(_rep));
-
-	stlink2_debug_command_u32(dev, STLINK2_CMD_JTAG_READDEBUG_32BIT, addr, _rep, sizeof(_rep));
-
-	memcpy(&_val, &_rep[4], sizeof(_val));
-	_val = le32toh(_val);
-	*val = (_val >> 16) & 0xffff;
+	stlink2_read_debug32(dev, addr, &_val);
+	if (addr % 4)
+		_val >>= 16;
+	*val = _val & 0xffff;
 }
 
 void stlink2_read_debug32(struct stlink2 *dev, uint32_t addr, uint32_t *val)
@@ -436,7 +432,7 @@ uint32_t stlink2_get_flash_size(stlink2_t dev)
 	return dev->mcu.flash_size;
 }
 
-const char *stlink2_get_unique_id(stlink2_t dev)
+const char *stlink2_get_unique_id(stlink2_t dev, uint32_t addr)
 {
 	if (dev->mcu.unique_id)
 		return dev->mcu.unique_id;
@@ -445,7 +441,6 @@ const char *stlink2_get_unique_id(stlink2_t dev)
 	if (!dev->mcu.unique_id)
 		return NULL;
 
-	uint32_t addr = 0x1ff800d0; /**< @todo hardcoded reg */
 	uint32_t unique_id[3]; /* 96-bit */
 
 	for (size_t n = 0; n < 3; n++) {
@@ -488,6 +483,7 @@ void stlink2_flush(stlink2_t dev)
 {
 	dev->mcu.coreid = 0;
 	dev->mcu.cpuid  = 0;
+	dev->mcu.flash_size = 0;
 	free(dev->mcu.unique_id);
 }
 
