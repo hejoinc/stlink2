@@ -15,6 +15,7 @@ addons:
     project:
       name: "xor-gate/stlink2"
       description: "STMicroelectronics STlinkv2 programmer library and tools"
+    notification_email: jerryjacobs1989@gmail.com
     build_command_prepend: "rm -rf build &> /dev/null || true; mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Debug"
     build_command: "make --ignore-errors"
     branch_pattern: coverity_scan
