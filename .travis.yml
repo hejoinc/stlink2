@@ -1,10 +1,23 @@
 language: c
 sudo: true
 
+env:
+  global:
+   # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
+   #   via the "travis encrypt" command using the project repo's public key
+   - secure: "gPfPnPTwlt+drzICeTulCa4tUh4YlX57+Z0sV+uWoQt3Hr7Vxz7EAyQUkBweBgmZdIoxQvZMY35pzLLnzNnCXxDaCJ7tT2qdpUIM+nIIVo9Z+hlH+dyR+pzzlFTFC5wk2nDsjWRs157m7JPo8w9Lc1UAlZa2e1tlBzz/6HNNUYu7gAgUS8Q2H+n1B4sDm1LJg5++SMs6sD2q5fpB9EC9ycQVQtZz+chXLmXIL4YODQtnNM/QvFjVdYJ9PU21Qxtxzvx7L83ZDS8Ao586gHPMGQ1Oo8Zfipue+IbvEA29xN30weBRBVO2ZVZwiN9QFGovHfna2vIdA/3WSMh0Tm9+SAo/25fG3kZh3P45gUo6sPZ3E0gPY8EQOYgvLpj8LQ5j2ArkoVLhz3RzDzryIUAPFh2ff/Loc6UFbs5kDGpiMLetX5nI2tIjYFqDZlaDOL3WreBWaxjAubk0SuUzZejLz51YeB0nLBfBugCgAq/HeBPk/XlzVlhe6IO4TwKR9weE+5dMU+3UPDqO2WOnEyXvxSl2KixcWF9qLWDq+vArPUViBJAUpPzFyWUJFefjPbqdhzCWrVVUUoqZNHkEzJc4khJ/cTsSDW/YSt6iDMDnRB1Cd1xGZjH/ofge6jj6jxmX3Po6igk4sa1DPdxI95Bq6b6XYA6McrwwjA0Uco7iYB4="
+
 addons:
   apt:
     packages:
       - clang
+  coverity_scan:
+    project:
+      name: "xor-gate/stlink2"
+      description: "STMicroelectronics STlinkv2 programmer library and tools"
+    build_command_prepend: "rm -rf build &> /dev/null || true; mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Debug"
+    build_command: "make --ignore-errors"
+    branch_pattern: coverity_scan
 
 compiler:
   - clang
