@@ -2,8 +2,9 @@
 
 STMicroelectronics STlinkv2 programmer library and tools
 
-[![Build Status](https://travis-ci.org/xor-gate/stlink2.svg?branch=master)](https://travis-ci.org/xor-gate/stlink2)
-[![Build status](https://ci.appveyor.com/api/projects/status/u36ning58lxy7kwh?svg=true)](https://ci.appveyor.com/project/xor-gate/stlink2)
+[![license](https://img.shields.io/github/license/xor-gate/stlink2.svg?maxAge=2592000)]()
+[![Build Status](https://img.shields.io/travis/xor-gate/stlink2/master.svg?label=Mac%20OSX%20%26%20Linux)](https://travis-ci.org/xor-gate/stlink2)
+[![Build status](https://img.shields.io/appveyor/ci/xor-gate/stlink2/master.svg?label=Windows)](https://ci.appveyor.com/project/xor-gate/stlink2)
 
 # Differences
 
