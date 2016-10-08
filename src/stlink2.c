@@ -471,7 +471,7 @@ float stlink2_get_target_voltage(stlink2_t dev)
 	memcpy(&adc_results[1], &rep[4], sizeof(uint32_t));
 
 	adc_results[0] = le32toh(adc_results[0]);
-	adc_results[0] = le32toh(adc_results[0]);
+	adc_results[1] = le32toh(adc_results[1]);
 
 	if (adc_results[0])
 		voltage = 2 * ((float)adc_results[1]) * (float)(1.2 / adc_results[0]);

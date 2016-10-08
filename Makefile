@@ -23,6 +23,10 @@ release: build/Release
 	@echo "[RELEASE]"
 	@$(MAKE) -C build/Release
 
+install: release
+	@echo "[PACKAGE] Release"
+	@$(MAKE) -C build/Release install DESTDIR=_install
+
 lint: build/Debug
 	@echo "[LINT]"
 	@$(MAKE) -C build/Debug lint
