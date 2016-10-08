@@ -6,6 +6,8 @@
 #ifndef STLINK2_SEMIHOSTING_H_
 #define STLINK2_SEMIHOSTING_H_
 
+#include <stdbool.h>
+
 enum stlink2_semihosting_operations {
 	STLINK2_SEMIHOSTING_OP_SYS_OPEN        = 0x01,
 	STLINK2_SEMIHOSTING_OP_SYS_CLOSE       = 0x02,

@@ -66,7 +66,6 @@ void stlink2_read_reg(stlink2_t dev, uint8_t idx, uint32_t *val);
 void stlink2_read_mem(stlink2_t dev, uint32_t addr, void *data, size_t len);
 
 #include <stlink2/log.h>
-#include <stlink2/usb.h>
 #include <stlink2/stm32.h>
 #include <stlink2/cortexm.h>
 #include <stlink2/semihosting.h>

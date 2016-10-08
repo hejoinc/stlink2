@@ -16,6 +16,7 @@ project(stlink2 C)
 set(STLINK2_VERSION_MAJOR 0)
 set(STLINK2_VERSION_MINOR 0)
 set(STLINK2_VERSION_PATCH 0)
+set(STLINK2_VERSION "${STLINK2_VERSION_MAJOR}.${STLINK2_VERSION_MINOR}.${STLINK2_VERSION_PATCH}")
 
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
@@ -23,8 +24,6 @@ if(WIN32)
 	find_package(7Zip REQUIRED)
 	message(STATUS "7Zip Location: " ${ZIP_LOCATION})
 endif()
-
-find_package(LibUSB REQUIRED)
 
 include(cmake/CheckCCompilerFlag.txt)
 if (NOT WIN32)
@@ -49,16 +48,14 @@ else ()
 		add_cflag_if_supported("-ftest-coverage")
 		add_cflag_if_supported("-fno-omit-frame-pointer")
 
+		set(STLINK2_VERSION "${STLINK2_VERSION}-debug")
 		add_definitions("-DSTLINK2_DEBUG")
-
 		include(CTest)
 	else()
 		add_cflag_if_supported("-O2")
 		add_cflag_if_supported("-Werror")
 		add_cflag_if_supported("-fomit-frame-pointer")
 		add_cflag_if_supported("-fvisibility=hidden")
-
-		add_definitions("-DSTLINK2_RELEASE")
 	endif()
 endif()
 
@@ -78,51 +75,17 @@ if(MSVC)
 #    SET (CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO}" CACHE STRING "MSVC CXX Release MT flags " FORCE)
 endif()
 
-configure_file (
-	"${CMAKE_SOURCE_DIR}/include/stlink2/build.h.in"
-	"${CMAKE_BINARY_DIR}/include/stlink2/build.h"
-)
+#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fprofile-arcs -ftest-coverage")
 
-set(SRC
-	src/stlink2.c
-	src/cortexm.c
-	src/log.c
-	src/usb.c
-	src/stm32.c
-	src/semihosting.c
-	src/utils/hexstr.c
-	src/utils/msleep.c
-)
+add_subdirectory(include)
 include_directories(include ${CMAKE_BINARY_DIR}/include)
-include_directories(SYSTEM ${LIBUSB_INCLUDE_DIR})
+add_subdirectory(src)
 
-set(STLINK2_LIBRARY_STATIC ${PROJECT_NAME}-static)
-set(STLINK2_LIBRARY_SHARED ${PROJECT_NAME}-shared)
-
-if(BUILD_TESTING)
-	add_lint_target("${SRC}")
-endif()
-
-add_library(${STLINK2_LIBRARY_STATIC} STATIC ${SRC})
-set_target_properties(${STLINK2_LIBRARY_STATIC} PROPERTIES OUTPUT_NAME ${PROJECT_NAME} PREFIX "")
-target_link_libraries(${STLINK2_LIBRARY_STATIC} ${LIBUSB_LIBRARY})
-if(WIN32)
-	target_link_libraries(${STLINK2_LIBRARY_STATIC} wsock32 ws2_32)
-endif ()
-
-add_library(${STLINK2_LIBRARY_SHARED} SHARED ${SRC})
-set_target_properties(${STLINK2_LIBRARY_SHARED} PROPERTIES OUTPUT_NAME ${PROJECT_NAME} PREFIX "")
-target_link_libraries(${STLINK2_LIBRARY_SHARED} ${LIBUSB_LIBRARY})
-if(WIN32)
-	target_link_libraries(${STLINK2_LIBRARY_SHARED} wsock32 ws2_32)
-endif ()
-
-if (APPLE)
-	find_library(ObjC objc)
-	find_library(CoreFoundation CoreFoundation)
-	find_library(IOKit IOKit)
-	target_link_libraries(${STLINK2_LIBRARY_STATIC} ${CoreFoundation} ${IOKit} ${ObjC})
-	target_link_libraries(${STLINK2_LIBRARY_SHARED} ${CoreFoundation} ${IOKit} ${ObjC})
+###
+# Lint
+###
+if (BUILD_TESTING)
+	add_lint_target("${STLINK2_HEADERS};${STLINK2_LIBRARY_SOURCE}")
 endif()
 
 add_subdirectory("tests")

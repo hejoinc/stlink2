@@ -9,6 +9,8 @@ set(TESTS
 	open_close
 )
 
+include_directories(SYSTEM ${LIBUSB_INCLUDE_DIR})
+
 foreach(test ${TESTS})
 	add_executable(${test} ${test}.c)
 	add_dependencies(${test} ${STLINK2_LIBRARY_STATIC})
